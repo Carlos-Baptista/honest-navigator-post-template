@@ -238,6 +238,33 @@ html,body{
   border:0.5px solid var(--color-text-mid);
 }
 
+.page-tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.page-tab{
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:0.5px solid var(--color-border-mid);
+  background:transparent;
+  color:var(--color-text-mid);
+  font-family:'Anybody',sans-serif;
+  font-size:11px;
+  font-weight:400;
+}
+.page-tab.active{
+  background:var(--color-forest);
+  color:var(--color-text-strong);
+}
+.page-tab.add{
+  color:var(--color-dim);
+  font-size:16px;
+}
+
 .segmented{
   display:flex;
   border-bottom:0.5px solid var(--color-border-mid);
@@ -258,10 +285,9 @@ html,body{
 }
 .segmented button:last-child{ border-right:none; }
 .segmented button.active{
+  background:var(--color-forest);
   color:var(--color-text-strong);
 }
-.segmented button.active::before{ content:'[ '; color:var(--color-dim); }
-.segmented button.active::after{ content:' ]'; color:var(--color-dim); }
 
 .checkbox-row{
   display:flex;
@@ -363,6 +389,14 @@ html,body{
 
     <div class="divider"></div>
 
+    <div class="field section-hidden" id="pagesField">
+      <label>Páginas</label>
+      <div class="page-tabs" id="pageTabs"></div>
+      <a class="reset-link" id="removePageLink" style="text-align:left;margin-top:10px;">remover esta página</a>
+    </div>
+
+    <div class="divider"></div>
+
     <div class="field">
       <label>Rótulo (a frase principal)</label>
       <input type="text" id="labelText" placeholder="Ex: Quem Nunca Desliga" maxlength="60">
@@ -425,6 +459,7 @@ html,body{
   </div>
 
   <button class="export-btn" id="exportBtn" disabled>Exportar imagem</button>
+  <button class="export-btn section-hidden" id="exportAllBtn" style="background:transparent;color:var(--color-orange);border-color:rgba(200,96,26,0.5);margin-top:12px;">Exportar todas as páginas</button>
   <a class="reset-link" id="resetLink">recomeçar</a>
 </div>
 
@@ -458,10 +493,8 @@ const FORMATS = {
 };
 
 let state = {
-  img: null,
-  labelText: '',
-  contextText: '',
-  ctaText: '',
+  pages: [ { img:null, labelText:'', contextText:'', ctaText:'' } ],
+  currentPage: 0,
   accent: PALETTE[0],
   bgColor: PALETTE[4],
   textColor: PALETTE[3],
@@ -472,6 +505,70 @@ let state = {
   offsetY: 0,
   textureOn: true,
 };
+
+function cp() { return state.pages[state.currentPage]; }
+
+const pageTabsEl = document.getElementById('pageTabs');
+const pagesField = document.getElementById('pagesField');
+const removePageLink = document.getElementById('removePageLink');
+const exportAllBtn = document.getElementById('exportAllBtn');
+const MAX_PAGES = 10;
+
+function loadPageIntoFields() {
+  const p = cp();
+  document.getElementById('labelText').value = p.labelText;
+  document.getElementById('contextText').value = p.contextText;
+  document.getElementById('ctaText').value = p.ctaText;
+  if (p.img) {
+    emptyState.classList.add('section-hidden');
+    exportBtn.disabled = false;
+    statusHint.textContent = 'imagem carregada';
+  } else if (state.bgMode === 'photo') {
+    emptyState.classList.remove('section-hidden');
+    exportBtn.disabled = true;
+    statusHint.textContent = 'à espera de imagem';
+  }
+}
+
+function renderPageTabs() {
+  pageTabsEl.innerHTML = '';
+  state.pages.forEach((p, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'page-tab' + (i === state.currentPage ? ' active' : '');
+    tab.textContent = String(i + 1).padStart(2, '0');
+    tab.addEventListener('click', () => {
+      state.currentPage = i;
+      loadPageIntoFields();
+      renderPageTabs();
+      draw();
+    });
+    pageTabsEl.appendChild(tab);
+  });
+  if (state.pages.length < MAX_PAGES) {
+    const addTab = document.createElement('button');
+    addTab.className = 'page-tab add';
+    addTab.textContent = '+';
+    addTab.addEventListener('click', () => {
+      state.pages.push({ img:null, labelText:'', contextText:'', ctaText:'' });
+      state.currentPage = state.pages.length - 1;
+      loadPageIntoFields();
+      renderPageTabs();
+      draw();
+    });
+    pageTabsEl.appendChild(addTab);
+  }
+  removePageLink.style.display = state.pages.length > 1 ? 'block' : 'none';
+  exportAllBtn.classList.toggle('section-hidden', !(state.format === 'carousel' && state.pages.length > 1));
+}
+
+removePageLink.addEventListener('click', () => {
+  if (state.pages.length <= 1) return;
+  state.pages.splice(state.currentPage, 1);
+  state.currentPage = Math.max(0, state.currentPage - 1);
+  loadPageIntoFields();
+  renderPageTabs();
+  draw();
+});
 
 let grainPattern = null;
 
@@ -507,6 +604,8 @@ document.getElementById('formatSeg').addEventListener('click', (e) => {
   canvas.height = f.h;
   canvasFrame.style.aspectRatio = f.w + '/' + f.h;
   dimsHint.textContent = f.label;
+  pagesField.classList.toggle('section-hidden', state.format !== 'carousel');
+  renderPageTabs();
   draw();
 });
 
@@ -525,7 +624,7 @@ document.getElementById('bgSeg').addEventListener('click', (e) => {
   } else {
     photoOnlyControls.classList.remove('section-hidden');
     solidOnlyControls.classList.add('section-hidden');
-    if (!state.img) {
+    if (!cp().img) {
       emptyState.classList.remove('section-hidden');
       exportBtn.disabled = true;
       statusHint.textContent = 'à espera de imagem';
@@ -564,7 +663,7 @@ offsetSlider.addEventListener('input', (e) => {
 
 ['labelText','contextText','ctaText'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
-    state[id] = e.target.value;
+    cp()[id] = e.target.value;
     draw();
   });
 });
@@ -578,7 +677,7 @@ fileInput.addEventListener('change', (e) => {
   reader.onload = (ev) => {
     const img = new Image();
     img.onload = () => {
-      state.img = img;
+      cp().img = img;
       emptyState.classList.add('section-hidden');
       exportBtn.disabled = false;
       statusHint.textContent = 'imagem carregada';
@@ -590,7 +689,7 @@ fileInput.addEventListener('change', (e) => {
 });
 
 document.getElementById('resetLink').addEventListener('click', () => {
-  state = {img:null, labelText:'', contextText:'', ctaText:'', accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], format:'reel', bgMode:'photo', boxStyle:'solid', position:'top', offsetY:0, textureOn:true};
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:''}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], format:'reel', bgMode:'photo', boxStyle:'solid', position:'top', offsetY:0, textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
@@ -605,6 +704,8 @@ document.getElementById('resetLink').addEventListener('click', () => {
   document.querySelectorAll('#bgSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   photoOnlyControls.classList.remove('section-hidden');
   solidOnlyControls.classList.add('section-hidden');
+  pagesField.classList.add('section-hidden');
+  renderPageTabs();
   canvas.width = FORMATS.reel.w;
   canvas.height = FORMATS.reel.h;
   canvasFrame.style.aspectRatio = '9/16';
@@ -657,9 +758,8 @@ function makeGrainPattern() {
   grainPattern = ctx.createPattern(off, 'repeat');
 }
 
-function drawPhotoBackground() {
+function drawPhotoBackground(img) {
   const W = canvas.width, H = canvas.height;
-  const img = state.img;
   const imgRatio = img.width / img.height;
   const canvasRatio = W / H;
   let sw, sh, sx, sy;
@@ -706,11 +806,12 @@ function drawSolidBackground() {
 
 function draw() {
   const W = canvas.width, H = canvas.height;
+  const page = cp();
   ctx.clearRect(0,0,W,H);
 
   if (state.bgMode === 'photo') {
-    if (state.img) {
-      drawPhotoBackground();
+    if (page.img) {
+      drawPhotoBackground(page.img);
     } else {
       ctx.fillStyle = '#1C1B17';
       ctx.fillRect(0,0,W,H);
@@ -719,7 +820,9 @@ function draw() {
     drawSolidBackground();
   }
 
-  if (!state.labelText && !state.contextText && !state.ctaText) return;
+  drawPageNumber();
+
+  if (!page.labelText && !page.contextText && !page.ctaText) return;
 
   const paddingX = Math.round(W * 0.06);
   const maxTextWidth = W - paddingX * 2 - Math.round(W*0.07);
@@ -731,8 +834,8 @@ function draw() {
   const contextFont = `400 ${contextFontSize}px 'Anybody'`;
   const ctaFont = `600 ${ctaFontSize}px 'Anybody'`;
 
-  const labelLines = state.labelText ? wrapText(state.labelText, maxTextWidth, labelFont) : [];
-  const contextLines = state.contextText ? wrapText(state.contextText, maxTextWidth, contextFont) : [];
+  const labelLines = page.labelText ? wrapText(page.labelText, maxTextWidth, labelFont) : [];
+  const contextLines = page.contextText ? wrapText(page.contextText, maxTextWidth, contextFont) : [];
 
   const lineGapLabel = labelFontSize * 1.12;
   const lineGapContext = contextFontSize * 1.4;
@@ -755,7 +858,7 @@ function draw() {
     const boxX = (W - boxWidth) / 2;
     const boxY = baseY() + state.offsetY;
 
-    if (state.labelText || state.contextText) {
+    if (page.labelText || page.contextText) {
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,0.5)';
       ctx.shadowBlur = W * 0.03;
@@ -827,7 +930,7 @@ function draw() {
     }
   }
 
-  if (state.ctaText) {
+  if (page.ctaText) {
     ctx.save();
     ctx.font = ctaFont;
     ctx.textAlign = 'center';
@@ -835,7 +938,7 @@ function draw() {
     const ctaColor = state.bgMode === 'solid' ? state.textColor.hex : '#EDE5D8';
     ctx.fillStyle = ctaColor;
     ctx.globalAlpha = 0.7;
-    const ctaLines = wrapText(state.ctaText, W - paddingX*2, ctaFont);
+    const ctaLines = wrapText(page.ctaText, W - paddingX*2, ctaFont);
     let cy = ctaY;
     ctaLines.forEach(line => {
       ctx.fillText(line, W/2, cy);
@@ -845,13 +948,74 @@ function draw() {
   }
 }
 
+function drawPageNumber() {
+  const W = canvas.width, H = canvas.height;
+  if (state.format !== 'carousel' || state.pages.length < 2) return;
+  const num = String(state.currentPage + 1).padStart(2, '0');
+  const lineLen = W * 0.09;
+  const marginX = W * 0.06;
+  const marginY = H * 0.045;
+  const fontSize = Math.round(W * 0.024);
+  const color = state.bgMode === 'solid' ? state.textColor.hex : '#EDE5D8';
+
+  ctx.save();
+  ctx.font = `400 ${fontSize}px 'Anybody'`;
+  const numWidth = ctx.measureText(num).width;
+  const y = H - marginY;
+  const lineY = y - fontSize * 0.32;
+  const lineEndX = W - marginX - numWidth - fontSize * 0.6;
+  const lineStartX = lineEndX - lineLen;
+
+  ctx.globalAlpha = 0.55;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1, W * 0.0012);
+  ctx.beginPath();
+  ctx.moveTo(lineStartX, lineY);
+  ctx.lineTo(lineEndX, lineY);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.75;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(num, W - marginX, y);
+  ctx.restore();
+}
+
 exportBtn.addEventListener('click', () => {
   const link = document.createElement('a');
   const ts = new Date().toISOString().replace(/[:.]/g,'-');
-  link.download = `capa-honest-navigator-${ts}.png`;
+  const suffix = state.format === 'carousel' && state.pages.length > 1
+    ? `-${String(state.currentPage + 1).padStart(2,'0')}`
+    : '';
+  link.download = `capa-honest-navigator${suffix}-${ts}.png`;
   link.href = canvas.toDataURL('image/png', 1.0);
   link.click();
 });
+
+exportAllBtn.addEventListener('click', () => {
+  const originalPage = state.currentPage;
+  const ts = new Date().toISOString().replace(/[:.]/g,'-');
+  let i = 0;
+  function next() {
+    if (i >= state.pages.length) {
+      state.currentPage = originalPage;
+      draw();
+      return;
+    }
+    state.currentPage = i;
+    draw();
+    const link = document.createElement('a');
+    link.download = `capa-honest-navigator-${String(i+1).padStart(2,'0')}-${ts}.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+    i++;
+    setTimeout(next, 400);
+  }
+  next();
+});
+
+renderPageTabs();
 
 document.fonts.load("600 76px 'Awesome Serif'").then(() => {
   document.fonts.load("400 34px 'Anybody'").then(() => {
