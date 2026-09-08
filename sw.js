@@ -6,14 +6,14 @@ const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './fonts/awesome-serif.ttf',
-  './fonts/anybody.ttf',
-  './icons/icon-120.png',
-  './icons/icon-152.png',
-  './icons/icon-167.png',
-  './icons/icon-180.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
+  './awesome-serif.ttf',
+  './anybody.ttf',
+  './icon-120.png',
+  './icon-152.png',
+  './icon-167.png',
+  './icon-180.png',
+  './icon-192.png',
+  './icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
