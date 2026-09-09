@@ -447,7 +447,7 @@ html,body{
       <div class="field">
         <div class="checkbox-row">
           <input type="checkbox" id="textureToggle" checked>
-          <span>Grelha de coordenadas (subtil)</span>
+          <span>Textura de grão (papel/filme)</span>
         </div>
       </div>
     </div>
@@ -750,32 +750,21 @@ function baseY() {
   return h * 0.70;
 }
 
-function luminance(hex) {
-  const r = parseInt(hex.slice(1,3),16)/255;
-  const g = parseInt(hex.slice(3,5),16)/255;
-  const b = parseInt(hex.slice(5,7),16)/255;
-  return 0.2126*r + 0.7152*g + 0.0722*b;
-}
-
-let grainBgCache = null;
-
-function makeGrainPattern(bgHex) {
-  const size = 120;
+function makeGrainPattern() {
+  const size = 160;
   const off = document.createElement('canvas');
   off.width = size; off.height = size;
   const octx = off.getContext('2d');
-  const isLight = luminance(bgHex) > 0.5;
-  octx.strokeStyle = isLight ? 'rgba(28,27,23,0.16)' : 'rgba(237,229,216,0.16)';
-  octx.lineWidth = 1;
-  const cx = size/2, cy = size/2, arm = 6;
-  octx.beginPath();
-  octx.moveTo(cx - arm, cy);
-  octx.lineTo(cx + arm, cy);
-  octx.moveTo(cx, cy - arm);
-  octx.lineTo(cx, cy + arm);
-  octx.stroke();
+  const imgData = octx.createImageData(size, size);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const v = 128 + (Math.random() - 0.5) * 140;
+    imgData.data[i] = v;
+    imgData.data[i+1] = v;
+    imgData.data[i+2] = v;
+    imgData.data[i+3] = 255;
+  }
+  octx.putImageData(imgData, 0, 0);
   grainPattern = ctx.createPattern(off, 'repeat');
-  grainBgCache = bgHex;
 }
 
 function drawPhotoBackground(img) {
@@ -809,14 +798,16 @@ function drawSolidBackground() {
   ctx.fillStyle = state.bgColor.hex;
   ctx.fillRect(0,0,W,H);
   if (state.textureOn) {
-    if (!grainPattern || grainBgCache !== state.bgColor.hex) makeGrainPattern(state.bgColor.hex);
+    if (!grainPattern) makeGrainPattern();
     ctx.save();
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.globalAlpha = 0.5;
     ctx.fillStyle = grainPattern;
     ctx.fillRect(0,0,W,H);
     ctx.restore();
     const vg = ctx.createRadialGradient(W/2,H*0.4,H*0.2,W/2,H*0.5,H*0.8);
     vg.addColorStop(0,'rgba(0,0,0,0)');
-    vg.addColorStop(1,'rgba(0,0,0,0.08)');
+    vg.addColorStop(1,'rgba(0,0,0,0.10)');
     ctx.fillStyle = vg;
     ctx.fillRect(0,0,W,H);
   }

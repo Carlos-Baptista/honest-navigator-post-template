@@ -1,6 +1,6 @@
 // Sobe este número sempre que fizeres uma alteração ao ficheiro,
 // para forçar o telemóvel a ir buscar a versão nova em vez de usar a antiga em cache.
-const CACHE_VERSION = 'editor-capas-v2';
+const CACHE_VERSION = 'editor-capas-v3';
 
 const ASSETS = [
   './',
@@ -18,16 +18,20 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_VERSION).then((cache) => cache.addAll(ASSETS)),
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)))
-    )
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)),
+        ),
+      ),
   );
   self.clients.claim();
 });
@@ -39,12 +43,14 @@ self.addEventListener('fetch', (event) => {
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy));
+            caches
+              .open(CACHE_VERSION)
+              .then((cache) => cache.put(event.request, copy));
           }
           return response;
         })
         .catch(() => cached);
       return cached || network;
-    })
+    }),
   );
 });
