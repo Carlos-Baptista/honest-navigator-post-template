@@ -267,7 +267,7 @@ html,body{
 
 .segmented{
   display:flex;
-  border-bottom:0.5px solid var(--color-border-mid);
+  border:0.5px solid var(--color-border-mid);
 }
 .segmented button{
   flex:1;
@@ -371,7 +371,9 @@ html,body{
       </div>
     </div>
     <input type="file" id="fileInput" accept="image/*">
-    <button class="upload-btn" id="uploadBtn">Carregar imagem</button>
+    <div id="uploadRow">
+      <button class="upload-btn" id="uploadBtn">Carregar imagem</button>
+    </div>
     <div class="hint-row">
       <span id="dimsHint">1080 × 1920</span>
       <span id="statusHint">à espera de imagem</span>
@@ -392,6 +394,7 @@ html,body{
       <label>Fundo</label>
       <div class="segmented" id="bgSeg">
         <button data-bg="photo" class="active">Foto</button>
+        <button data-bg="overlay">Overlay</button>
         <button data-bg="solid">Sólido</button>
       </div>
     </div>
@@ -435,6 +438,17 @@ html,body{
       </div>
     </div>
 
+    <div id="overlayOnlyControls" class="section-hidden">
+      <div class="field">
+        <label>Cor do texto</label>
+        <div class="swatches" id="swatchesOverlayText"></div>
+      </div>
+      <div class="field">
+        <label>Opacidade do overlay</label>
+        <input type="range" id="overlayOpacitySlider" min="0" max="90" value="45">
+      </div>
+    </div>
+
     <div id="solidOnlyControls" class="section-hidden">
       <div class="field">
         <label>Cor de fundo</label>
@@ -447,7 +461,7 @@ html,body{
       <div class="field">
         <div class="checkbox-row">
           <input type="checkbox" id="textureToggle" checked>
-          <span>Grelha de coordenadas (subtil)</span>
+          <span>Grelha com pontos (subtil)</span>
         </div>
       </div>
     </div>
@@ -484,6 +498,9 @@ const dimsHint = document.getElementById('dimsHint');
 const canvasFrame = document.getElementById('canvasFrame');
 const photoOnlyControls = document.getElementById('photoOnlyControls');
 const solidOnlyControls = document.getElementById('solidOnlyControls');
+const overlayOnlyControls = document.getElementById('overlayOnlyControls');
+const uploadRow = document.getElementById('uploadRow');
+const overlayOpacitySlider = document.getElementById('overlayOpacitySlider');
 const offsetSlider = document.getElementById('offsetSlider');
 
 const PALETTE = [
@@ -507,6 +524,8 @@ let state = {
   accent: PALETTE[0],
   bgColor: PALETTE[4],
   textColor: PALETTE[3],
+  overlayTextColor: PALETTE[4],
+  overlayOpacity: 45,
   format: 'reel',
   bgMode: 'photo',
   boxStyle: 'solid',
@@ -532,7 +551,7 @@ function loadPageIntoFields() {
     emptyState.classList.add('section-hidden');
     exportBtn.disabled = false;
     statusHint.textContent = 'imagem carregada';
-  } else if (state.bgMode === 'photo') {
+  } else if (state.bgMode !== 'solid') {
     emptyState.classList.remove('section-hidden');
     exportBtn.disabled = true;
     statusHint.textContent = 'à espera de imagem';
@@ -601,6 +620,12 @@ function buildSwatchRow(container, palette, activeIdx, onPick) {
 buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, 0, c => state.accent = c);
 buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, 4, c => state.bgColor = c);
 buildSwatchRow(document.getElementById('swatchesTextColor'), PALETTE, 3, c => state.textColor = c);
+buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, 4, c => state.overlayTextColor = c);
+
+overlayOpacitySlider.addEventListener('input', (e) => {
+  state.overlayOpacity = parseInt(e.target.value, 10);
+  draw();
+});
 
 document.getElementById('formatSeg').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
@@ -624,19 +649,26 @@ document.getElementById('bgSeg').addEventListener('click', (e) => {
   document.querySelectorAll('#bgSeg button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   state.bgMode = btn.dataset.bg;
+
+  photoOnlyControls.classList.toggle('section-hidden', state.bgMode !== 'photo');
+  overlayOnlyControls.classList.toggle('section-hidden', state.bgMode !== 'overlay');
+  solidOnlyControls.classList.toggle('section-hidden', state.bgMode !== 'solid');
+
   if (state.bgMode === 'solid') {
-    photoOnlyControls.classList.add('section-hidden');
-    solidOnlyControls.classList.remove('section-hidden');
+    uploadRow.classList.add('section-hidden');
     emptyState.classList.add('section-hidden');
     exportBtn.disabled = false;
     statusHint.textContent = 'fundo sólido';
   } else {
-    photoOnlyControls.classList.remove('section-hidden');
-    solidOnlyControls.classList.add('section-hidden');
+    uploadRow.classList.remove('section-hidden');
     if (!cp().img) {
       emptyState.classList.remove('section-hidden');
       exportBtn.disabled = true;
       statusHint.textContent = 'à espera de imagem';
+    } else {
+      emptyState.classList.add('section-hidden');
+      exportBtn.disabled = false;
+      statusHint.textContent = 'imagem carregada';
     }
   }
   draw();
@@ -698,21 +730,25 @@ fileInput.addEventListener('change', (e) => {
 });
 
 document.getElementById('resetLink').addEventListener('click', () => {
-  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:''}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], format:'reel', bgMode:'photo', boxStyle:'solid', position:'top', offsetY:0, textureOn:true};
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:''}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top', offsetY:0, textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
   document.getElementById('textureToggle').checked = true;
   offsetSlider.value = 0;
+  overlayOpacitySlider.value = 45;
   buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, 0, c => state.accent = c);
   buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, 4, c => state.bgColor = c);
   buildSwatchRow(document.getElementById('swatchesTextColor'), PALETTE, 3, c => state.textColor = c);
+  buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, 4, c => state.overlayTextColor = c);
   document.querySelectorAll('#posSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#styleSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#formatSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#bgSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   photoOnlyControls.classList.remove('section-hidden');
+  overlayOnlyControls.classList.add('section-hidden');
   solidOnlyControls.classList.add('section-hidden');
+  uploadRow.classList.remove('section-hidden');
   pagesField.classList.add('section-hidden');
   renderPageTabs();
   canvas.width = FORMATS.reel.w;
@@ -760,25 +796,33 @@ function luminance(hex) {
 let grainBgCache = null;
 
 function makeGrainPattern(bgHex) {
-  const size = 120;
+  const size = 96;
   const off = document.createElement('canvas');
   off.width = size; off.height = size;
   const octx = off.getContext('2d');
   const isLight = luminance(bgHex) > 0.5;
-  octx.strokeStyle = isLight ? 'rgba(28,27,23,0.16)' : 'rgba(237,229,216,0.16)';
+  const lineColor = isLight ? 'rgba(28,27,23,0.07)' : 'rgba(237,229,216,0.09)';
+  const dotColor  = isLight ? 'rgba(28,27,23,0.22)' : 'rgba(237,229,216,0.26)';
+
+  octx.strokeStyle = lineColor;
   octx.lineWidth = 1;
-  const cx = size/2, cy = size/2, arm = 6;
   octx.beginPath();
-  octx.moveTo(cx - arm, cy);
-  octx.lineTo(cx + arm, cy);
-  octx.moveTo(cx, cy - arm);
-  octx.lineTo(cx, cy + arm);
+  octx.moveTo(0, 0.5);
+  octx.lineTo(size, 0.5);
+  octx.moveTo(0.5, 0);
+  octx.lineTo(0.5, size);
   octx.stroke();
+
+  octx.fillStyle = dotColor;
+  octx.beginPath();
+  octx.arc(0.5, 0.5, 1.4, 0, Math.PI * 2);
+  octx.fill();
+
   grainPattern = ctx.createPattern(off, 'repeat');
   grainBgCache = bgHex;
 }
 
-function drawPhotoBackground(img) {
+function drawPhotoBackground(img, applyGradient) {
   const W = canvas.width, H = canvas.height;
   const imgRatio = img.width / img.height;
   const canvasRatio = W / H;
@@ -795,13 +839,15 @@ function drawPhotoBackground(img) {
     sy = (img.height - sh) / 2;
   }
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
-  const grad = ctx.createLinearGradient(0,0,0,H);
-  grad.addColorStop(0,'rgba(22,21,19,0.12)');
-  grad.addColorStop(0.35,'rgba(22,21,19,0)');
-  grad.addColorStop(0.65,'rgba(22,21,19,0)');
-  grad.addColorStop(1,'rgba(22,21,19,0.18)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0,0,W,H);
+  if (applyGradient) {
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(22,21,19,0.12)');
+    grad.addColorStop(0.35,'rgba(22,21,19,0)');
+    grad.addColorStop(0.65,'rgba(22,21,19,0)');
+    grad.addColorStop(1,'rgba(22,21,19,0.18)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+  }
 }
 
 function drawSolidBackground() {
@@ -827,12 +873,19 @@ function draw() {
   const page = cp();
   ctx.clearRect(0,0,W,H);
 
-  if (state.bgMode === 'photo') {
+  if (state.bgMode === 'photo' || state.bgMode === 'overlay') {
     if (page.img) {
-      drawPhotoBackground(page.img);
+      drawPhotoBackground(page.img, state.bgMode === 'photo');
     } else {
       ctx.fillStyle = '#1C1B17';
       ctx.fillRect(0,0,W,H);
+    }
+    if (state.bgMode === 'overlay' && page.img) {
+      ctx.save();
+      ctx.fillStyle = '#000000';
+      ctx.globalAlpha = state.overlayOpacity / 100;
+      ctx.fillRect(0,0,W,H);
+      ctx.restore();
     }
   } else {
     drawSolidBackground();
@@ -924,12 +977,13 @@ function draw() {
     }
   } else {
     const startY = baseY() + state.offsetY;
+    const directColor = state.bgMode === 'overlay' ? state.overlayTextColor.hex : state.textColor.hex;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
 
     let cursorY = startY + labelFontSize * 0.82;
     ctx.font = labelFont;
-    ctx.fillStyle = state.textColor.hex;
+    ctx.fillStyle = directColor;
     labelLines.forEach(line => {
       ctx.fillText(line, W/2, cursorY);
       cursorY += lineGapLabel;
@@ -939,7 +993,7 @@ function draw() {
       cursorY += gapBetween - lineGapLabel + contextFontSize * 0.9;
       ctx.font = contextFont;
       ctx.globalAlpha = 0.82;
-      ctx.fillStyle = state.textColor.hex;
+      ctx.fillStyle = directColor;
       contextLines.forEach(line => {
         ctx.fillText(line, W/2, cursorY);
         cursorY += lineGapContext;
@@ -953,7 +1007,9 @@ function draw() {
     ctx.font = ctaFont;
     ctx.textAlign = 'center';
     const ctaY = H - H*0.062;
-    const ctaColor = state.bgMode === 'solid' ? state.textColor.hex : '#EDE5D8';
+    const ctaColor = state.bgMode === 'solid' ? state.textColor.hex
+                    : state.bgMode === 'overlay' ? state.overlayTextColor.hex
+                    : '#EDE5D8';
     ctx.fillStyle = ctaColor;
     ctx.globalAlpha = 0.7;
     const ctaLines = wrapText(page.ctaText, W - paddingX*2, ctaFont);
@@ -974,7 +1030,9 @@ function drawPageNumber() {
   const marginX = W * 0.06;
   const marginY = H * 0.045;
   const fontSize = Math.round(W * 0.024);
-  const color = state.bgMode === 'solid' ? state.textColor.hex : '#EDE5D8';
+  const color = state.bgMode === 'solid' ? state.textColor.hex
+              : state.bgMode === 'overlay' ? state.overlayTextColor.hex
+              : '#EDE5D8';
 
   ctx.save();
   ctx.font = `400 ${fontSize}px 'Anybody'`;
