@@ -265,6 +265,33 @@ html,body{
   font-size:16px;
 }
 
+.pos-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  grid-template-rows:repeat(3, 40px);
+  border:0.5px solid var(--color-border-mid);
+}
+.pos-grid button{
+  background:transparent;
+  border:none;
+  border-right:0.5px solid var(--color-border-mid);
+  border-bottom:0.5px solid var(--color-border-mid);
+  position:relative;
+  padding:0;
+}
+.pos-grid button:nth-child(3n){ border-right:none; }
+.pos-grid button:nth-child(n+7){ border-bottom:none; }
+.pos-grid button::after{
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  width:4px; height:4px;
+  background:var(--color-dim);
+  transform:translate(-50%,-50%);
+}
+.pos-grid button.active{ background:var(--color-forest); }
+.pos-grid button.active::after{ background:var(--color-text-strong); }
+
 .segmented{
   display:flex;
   border:0.5px solid var(--color-border-mid);
@@ -345,6 +372,7 @@ html,body{
   .upload-btn:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
   .segmented button:not(.active):hover{ color:var(--color-text-base); }
   .page-tab:not(.active):hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
+  .pos-grid button:not(.active):hover{ background:rgba(200,186,168,0.08); }
   .swatch:hover{ border-color:var(--color-text-mid); }
   .export-btn:not(:disabled):hover{ box-shadow:0 0 18px rgba(200,96,26,0.3), 0 0 36px rgba(200,96,26,0.1); }
   #exportAllBtn:not(:disabled):hover{ box-shadow:0 0 14px rgba(200,96,26,0.2); background:rgba(200,96,26,0.08); }
@@ -468,10 +496,16 @@ html,body{
 
     <div class="field">
       <label>Posição</label>
-      <div class="segmented" id="posSeg">
-        <button data-pos="top" class="active">Topo</button>
-        <button data-pos="mid">Centro</button>
-        <button data-pos="bottom">Base</button>
+      <div class="pos-grid" id="posGrid">
+        <button data-pos="top-left"></button>
+        <button data-pos="top-center" class="active"></button>
+        <button data-pos="top-right"></button>
+        <button data-pos="mid-left"></button>
+        <button data-pos="mid-center"></button>
+        <button data-pos="mid-right"></button>
+        <button data-pos="bottom-left"></button>
+        <button data-pos="bottom-center"></button>
+        <button data-pos="bottom-right"></button>
       </div>
     </div>
 
@@ -529,7 +563,7 @@ let state = {
   format: 'reel',
   bgMode: 'photo',
   boxStyle: 'solid',
-  position: 'top',
+  position: 'top-center',
   offsetY: 0,
   textureOn: true,
 };
@@ -674,9 +708,9 @@ document.getElementById('bgSeg').addEventListener('click', (e) => {
   draw();
 });
 
-document.querySelectorAll('#posSeg button').forEach(btn => {
+document.querySelectorAll('#posGrid button').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('#posSeg button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#posGrid button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.position = btn.dataset.pos;
     draw();
@@ -730,7 +764,7 @@ fileInput.addEventListener('change', (e) => {
 });
 
 document.getElementById('resetLink').addEventListener('click', () => {
-  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:''}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top', offsetY:0, textureOn:true};
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:''}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top-center', offsetY:0, textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
@@ -741,7 +775,7 @@ document.getElementById('resetLink').addEventListener('click', () => {
   buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, 4, c => state.bgColor = c);
   buildSwatchRow(document.getElementById('swatchesTextColor'), PALETTE, 3, c => state.textColor = c);
   buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, 4, c => state.overlayTextColor = c);
-  document.querySelectorAll('#posSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('#posGrid button').forEach((b) => b.classList.toggle('active', b.dataset.pos === 'top-center'));
   document.querySelectorAll('#styleSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#formatSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#bgSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
@@ -779,11 +813,17 @@ function wrapText(text, maxWidth, font) {
   return lines;
 }
 
+function positionParts() {
+  const [v, h] = state.position.split('-');
+  return { v, h };
+}
+
 function baseY() {
-  const h = canvas.height;
-  if (state.position === 'top') return h * 0.14;
-  if (state.position === 'mid') return h * 0.42;
-  return h * 0.70;
+  const height = canvas.height;
+  const { v } = positionParts();
+  if (v === 'top') return height * 0.14;
+  if (v === 'mid') return height * 0.42;
+  return height * 0.70;
 }
 
 function luminance(hex) {
@@ -926,8 +966,12 @@ function draw() {
 
     const boxWidth = Math.min(maxLineWidth + boxPadH * 2, W - paddingX * 2);
     const boxHeight = blockHeight + boxPadV * 2;
-    const boxX = (W - boxWidth) / 2;
+    const { h: hAlign } = positionParts();
+    const boxX = hAlign === 'left' ? paddingX
+                : hAlign === 'right' ? W - paddingX - boxWidth
+                : (W - boxWidth) / 2;
     const boxY = baseY() + state.offsetY;
+    const boxCenterX = boxX + boxWidth / 2;
 
     if (page.labelText || page.contextText) {
       ctx.save();
@@ -959,7 +1003,7 @@ function draw() {
       ctx.font = labelFont;
       ctx.fillStyle = textColor;
       labelLines.forEach(line => {
-        ctx.fillText(line, W/2, cursorY);
+        ctx.fillText(line, boxCenterX, cursorY);
         cursorY += lineGapLabel;
       });
 
@@ -969,7 +1013,7 @@ function draw() {
         ctx.globalAlpha = state.boxStyle === 'solid' ? 0.92 : 1;
         ctx.fillStyle = state.boxStyle === 'solid' ? textColor : '#4A4136';
         contextLines.forEach(line => {
-          ctx.fillText(line, W/2, cursorY);
+          ctx.fillText(line, boxCenterX, cursorY);
           cursorY += lineGapContext;
         });
         ctx.globalAlpha = 1;
@@ -977,15 +1021,18 @@ function draw() {
     }
   } else {
     const startY = baseY() + state.offsetY;
+    const { h: hAlign } = positionParts();
     const directColor = state.bgMode === 'overlay' ? state.overlayTextColor.hex : state.textColor.hex;
-    ctx.textAlign = 'center';
+    const textAlign = hAlign === 'left' ? 'left' : hAlign === 'right' ? 'right' : 'center';
+    const textX = hAlign === 'left' ? paddingX : hAlign === 'right' ? W - paddingX : W/2;
+    ctx.textAlign = textAlign;
     ctx.textBaseline = 'alphabetic';
 
     let cursorY = startY + labelFontSize * 0.82;
     ctx.font = labelFont;
     ctx.fillStyle = directColor;
     labelLines.forEach(line => {
-      ctx.fillText(line, W/2, cursorY);
+      ctx.fillText(line, textX, cursorY);
       cursorY += lineGapLabel;
     });
 
@@ -995,7 +1042,7 @@ function draw() {
       ctx.globalAlpha = 0.82;
       ctx.fillStyle = directColor;
       contextLines.forEach(line => {
-        ctx.fillText(line, W/2, cursorY);
+        ctx.fillText(line, textX, cursorY);
         cursorY += lineGapContext;
       });
       ctx.globalAlpha = 1;
