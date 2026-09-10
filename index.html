@@ -265,10 +265,34 @@ html,body{
   font-size:16px;
 }
 
+.tab-bar{
+  display:flex;
+  gap:20px;
+  margin:22px 0 20px;
+  padding-bottom:12px;
+  border-bottom:0.5px solid var(--color-border-mid);
+}
+.tab-bar button{
+  background:transparent;
+  border:none;
+  padding:0;
+  color:var(--color-text-mid);
+  font-family:'Anybody',sans-serif;
+  font-size:11px;
+  font-weight:400;
+  letter-spacing:var(--tracking-wider);
+  text-transform:uppercase;
+}
+.tab-bar button.active{ color:var(--color-text-strong); }
+.tab-bar button.active::before{ content:'[ '; color:var(--color-dim); }
+.tab-bar button.active::after{ content:' ]'; color:var(--color-dim); }
+
+.tab-panel .pos-grid{ max-width:180px; margin:0 auto; }
+
 .pos-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
-  grid-template-rows:repeat(3, 40px);
+  grid-template-rows:repeat(3, 28px);
   border:0.5px solid var(--color-border-mid);
 }
 .pos-grid button{
@@ -373,6 +397,7 @@ html,body{
   .segmented button:not(.active):hover{ color:var(--color-text-base); }
   .page-tab:not(.active):hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
   .pos-grid button:not(.active):hover{ background:rgba(200,186,168,0.08); }
+  .tab-bar button:not(.active):hover{ color:var(--color-text-base); }
   .swatch:hover{ border-color:var(--color-text-mid); }
   .export-btn:not(:disabled):hover{ box-shadow:0 0 18px rgba(200,96,26,0.3), 0 0 36px rgba(200,96,26,0.1); }
   #exportAllBtn:not(:disabled):hover{ box-shadow:0 0 14px rgba(200,96,26,0.2); background:rgba(200,96,26,0.08); }
@@ -388,6 +413,25 @@ html,body{
   <div class="masthead">
     <h1>Editor de Capas</h1>
     <p>Clip + Rótulo + CTA — sem passar pelo Mac.</p>
+  </div>
+
+  <div class="panel" style="padding-bottom:4px;">
+    <div class="field">
+      <label>Formato</label>
+      <div class="segmented" id="formatSeg">
+        <button data-format="reel" class="active">Reel</button>
+        <button data-format="carousel">Carrossel</button>
+        <button data-format="square">Quadrado</button>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Fundo</label>
+      <div class="segmented" id="bgSeg">
+        <button data-bg="photo" class="active">Foto</button>
+        <button data-bg="overlay">Overlay</button>
+        <button data-bg="solid">Sólido</button>
+      </div>
+    </div>
   </div>
 
   <div class="canvas-zone">
@@ -408,26 +452,7 @@ html,body{
     </div>
   </div>
 
-  <div class="panel">
-
-    <div class="field">
-      <label>Formato</label>
-      <div class="segmented" id="formatSeg">
-        <button data-format="reel" class="active">Reel</button>
-        <button data-format="carousel">Carrossel</button>
-        <button data-format="square">Quadrado</button>
-      </div>
-    </div>
-    <div class="field">
-      <label>Fundo</label>
-      <div class="segmented" id="bgSeg">
-        <button data-bg="photo" class="active">Foto</button>
-        <button data-bg="overlay">Overlay</button>
-        <button data-bg="solid">Sólido</button>
-      </div>
-    </div>
-
-    <div class="divider"></div>
+  <div class="panel" style="padding-top:4px;">
 
     <div class="field section-hidden" id="pagesField">
       <label>Páginas</label>
@@ -435,83 +460,90 @@ html,body{
       <a class="reset-link" id="removePageLink" style="text-align:left;margin-top:10px;">remover esta página</a>
     </div>
 
-    <div class="divider"></div>
-
-    <div class="field">
-      <label>Rótulo (a frase principal)</label>
-      <input type="text" id="labelText" placeholder="Ex: Quem Nunca Desliga" maxlength="60">
-    </div>
-    <div class="field">
-      <label>Linha de contexto (opcional)</label>
-      <input type="text" id="contextText" placeholder="Ex: não é cansaço físico, é mental" maxlength="90">
-    </div>
-    <div class="field">
-      <label>CTA (opcional, linha final)</label>
-      <input type="text" id="ctaText" placeholder="Ex: manda isto a quem também nunca desliga" maxlength="80">
+    <div class="tab-bar" id="tabBar">
+      <button data-tab="texto" class="active">Texto</button>
+      <button data-tab="estilo">Estilo</button>
+      <button data-tab="posicao">Posição</button>
     </div>
 
-    <div class="divider"></div>
-
-    <div id="photoOnlyControls">
+    <div class="tab-panel" id="tabTexto">
       <div class="field">
-        <label>Cor do rótulo</label>
-        <div class="swatches" id="swatchesAccent"></div>
+        <label>Rótulo (a frase principal)</label>
+        <input type="text" id="labelText" placeholder="Ex: Quem Nunca Desliga" maxlength="60">
       </div>
       <div class="field">
-        <label>Estilo da caixa</label>
-        <div class="segmented" id="styleSeg">
-          <button data-style="solid" class="active">Sólido</button>
-          <button data-style="paper">Papel</button>
+        <label>Linha de contexto (opcional)</label>
+        <input type="text" id="contextText" placeholder="Ex: não é cansaço físico, é mental" maxlength="90">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>CTA (opcional, linha final)</label>
+        <input type="text" id="ctaText" placeholder="Ex: manda isto a quem também nunca desliga" maxlength="80">
+      </div>
+    </div>
+
+    <div class="tab-panel section-hidden" id="tabEstilo">
+      <div id="photoOnlyControls">
+        <div class="field">
+          <label>Cor do rótulo</label>
+          <div class="swatches" id="swatchesAccent"></div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Estilo da caixa</label>
+          <div class="segmented" id="styleSeg">
+            <button data-style="solid" class="active">Sólido</button>
+            <button data-style="paper">Papel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="overlayOnlyControls" class="section-hidden">
+        <div class="field">
+          <label>Cor do texto</label>
+          <div class="swatches" id="swatchesOverlayText"></div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Opacidade do overlay</label>
+          <input type="range" id="overlayOpacitySlider" min="0" max="90" value="45">
+        </div>
+      </div>
+
+      <div id="solidOnlyControls" class="section-hidden">
+        <div class="field">
+          <label>Cor de fundo</label>
+          <div class="swatches" id="swatchesBg"></div>
+        </div>
+        <div class="field">
+          <label>Cor do texto</label>
+          <div class="swatches" id="swatchesTextColor"></div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <div class="checkbox-row">
+            <input type="checkbox" id="textureToggle" checked>
+            <span>Grelha com pontos (subtil)</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="overlayOnlyControls" class="section-hidden">
+    <div class="tab-panel section-hidden" id="tabPosicao">
       <div class="field">
-        <label>Cor do texto</label>
-        <div class="swatches" id="swatchesOverlayText"></div>
-      </div>
-      <div class="field">
-        <label>Opacidade do overlay</label>
-        <input type="range" id="overlayOpacitySlider" min="0" max="90" value="45">
-      </div>
-    </div>
-
-    <div id="solidOnlyControls" class="section-hidden">
-      <div class="field">
-        <label>Cor de fundo</label>
-        <div class="swatches" id="swatchesBg"></div>
-      </div>
-      <div class="field">
-        <label>Cor do texto</label>
-        <div class="swatches" id="swatchesTextColor"></div>
-      </div>
-      <div class="field">
-        <div class="checkbox-row">
-          <input type="checkbox" id="textureToggle" checked>
-          <span>Grelha com pontos (subtil)</span>
+        <label>Posição</label>
+        <div class="pos-grid" id="posGrid">
+          <button data-pos="top-left"></button>
+          <button data-pos="top-center" class="active"></button>
+          <button data-pos="top-right"></button>
+          <button data-pos="mid-left"></button>
+          <button data-pos="mid-center"></button>
+          <button data-pos="mid-right"></button>
+          <button data-pos="bottom-left"></button>
+          <button data-pos="bottom-center"></button>
+          <button data-pos="bottom-right"></button>
         </div>
       </div>
-    </div>
-
-    <div class="field">
-      <label>Posição</label>
-      <div class="pos-grid" id="posGrid">
-        <button data-pos="top-left"></button>
-        <button data-pos="top-center" class="active"></button>
-        <button data-pos="top-right"></button>
-        <button data-pos="mid-left"></button>
-        <button data-pos="mid-center"></button>
-        <button data-pos="mid-right"></button>
-        <button data-pos="bottom-left"></button>
-        <button data-pos="bottom-center"></button>
-        <button data-pos="bottom-right"></button>
+      <div class="field" style="margin-bottom:0;">
+        <label>Ajuste fino vertical</label>
+        <input type="range" id="offsetSlider" min="-300" max="300" value="0">
       </div>
-    </div>
-
-    <div class="field">
-      <label>Ajuste fino vertical</label>
-      <input type="range" id="offsetSlider" min="-300" max="300" value="0">
     </div>
   </div>
 
@@ -784,6 +816,10 @@ document.getElementById('resetLink').addEventListener('click', () => {
   solidOnlyControls.classList.add('section-hidden');
   uploadRow.classList.remove('section-hidden');
   pagesField.classList.add('section-hidden');
+  document.querySelectorAll('#tabBar button').forEach((b) => b.classList.toggle('active', b.dataset.tab === 'texto'));
+  document.getElementById('tabTexto').classList.remove('section-hidden');
+  document.getElementById('tabEstilo').classList.add('section-hidden');
+  document.getElementById('tabPosicao').classList.add('section-hidden');
   renderPageTabs();
   canvas.width = FORMATS.reel.w;
   canvas.height = FORMATS.reel.h;
@@ -1139,6 +1175,17 @@ exportAllBtn.addEventListener('click', () => {
 });
 
 renderPageTabs();
+
+document.getElementById('tabBar').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('#tabBar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabTexto').classList.toggle('section-hidden', tab !== 'texto');
+  document.getElementById('tabEstilo').classList.toggle('section-hidden', tab !== 'estilo');
+  document.getElementById('tabPosicao').classList.toggle('section-hidden', tab !== 'posicao');
+});
 
 document.fonts.load("600 76px 'Awesome Serif'").then(() => {
   document.fonts.load("400 34px 'Anybody'").then(() => {
