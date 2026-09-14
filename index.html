@@ -1018,10 +1018,6 @@ function draw() {
       if (state.boxStyle === 'solid') {
         ctx.fillStyle = state.accent.hex;
         ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-        ctx.shadowColor = 'transparent';
-        ctx.strokeStyle = 'rgba(248,246,242,0.35)';
-        ctx.lineWidth = Math.max(1.5, W*0.0015);
-        ctx.strokeRect(boxX+1, boxY+1, boxWidth-2, boxHeight-2);
       } else {
         ctx.fillStyle = '#EDE5D8';
         ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
@@ -1033,9 +1029,10 @@ function draw() {
 
       const textColor = state.boxStyle === 'solid' ? state.accent.text : '#1C1B17';
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic';
+      ctx.textBaseline = 'middle';
 
-      let cursorY = boxY + boxPadV + labelFontSize * 0.82;
+      const blockTop = boxY + boxPadV;
+      let cursorY = blockTop + lineGapLabel / 2;
       ctx.font = labelFont;
       ctx.fillStyle = textColor;
       labelLines.forEach(line => {
@@ -1044,13 +1041,14 @@ function draw() {
       });
 
       if (contextLines.length) {
-        cursorY += gapBetween - lineGapLabel + contextFontSize * 0.9;
+        const cursorYContext = blockTop + labelLines.length * lineGapLabel + gapBetween + lineGapContext / 2;
         ctx.font = contextFont;
         ctx.globalAlpha = state.boxStyle === 'solid' ? 0.92 : 1;
         ctx.fillStyle = state.boxStyle === 'solid' ? textColor : '#4A4136';
+        let cy = cursorYContext;
         contextLines.forEach(line => {
-          ctx.fillText(line, boxCenterX, cursorY);
-          cursorY += lineGapContext;
+          ctx.fillText(line, boxCenterX, cy);
+          cy += lineGapContext;
         });
         ctx.globalAlpha = 1;
       }
@@ -1141,37 +1139,65 @@ function drawPageNumber() {
   ctx.restore();
 }
 
-exportBtn.addEventListener('click', () => {
+function canvasToBlob() {
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
+  link.download = filename;
+  link.href = url;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+exportBtn.addEventListener('click', async () => {
   const ts = new Date().toISOString().replace(/[:.]/g,'-');
   const suffix = state.format === 'carousel' && state.pages.length > 1
     ? `-${String(state.currentPage + 1).padStart(2,'0')}`
     : '';
-  link.download = `capa-honest-navigator${suffix}-${ts}.png`;
-  link.href = canvas.toDataURL('image/png', 1.0);
-  link.click();
+  const filename = `capa-honest-navigator${suffix}-${ts}.png`;
+  const blob = await canvasToBlob();
+  const file = new File([blob], filename, { type: 'image/png' });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+      // se a partilha falhar por outro motivo, cai para a transferência normal
+    }
+  }
+  downloadBlob(blob, filename);
 });
 
-exportAllBtn.addEventListener('click', () => {
+exportAllBtn.addEventListener('click', async () => {
   const originalPage = state.currentPage;
   const ts = new Date().toISOString().replace(/[:.]/g,'-');
-  let i = 0;
-  function next() {
-    if (i >= state.pages.length) {
-      state.currentPage = originalPage;
-      draw();
-      return;
-    }
+  const files = [];
+  for (let i = 0; i < state.pages.length; i++) {
     state.currentPage = i;
     draw();
-    const link = document.createElement('a');
-    link.download = `capa-honest-navigator-${String(i+1).padStart(2,'0')}-${ts}.png`;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
-    i++;
-    setTimeout(next, 400);
+    const blob = await canvasToBlob();
+    const filename = `capa-honest-navigator-${String(i+1).padStart(2,'0')}-${ts}.png`;
+    files.push(new File([blob], filename, { type: 'image/png' }));
   }
-  next();
+  state.currentPage = originalPage;
+  draw();
+
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try {
+      await navigator.share({ files });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+  files.forEach((file, i) => {
+    setTimeout(() => downloadBlob(file, file.name), i * 400);
+  });
 });
 
 renderPageTabs();
