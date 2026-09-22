@@ -193,7 +193,8 @@ html,body{
   margin-bottom:8px;
 }
 
-.field input[type=text]{
+.field input[type=text],
+.field textarea{
   width:100%;
   background:transparent;
   border:0.5px solid var(--color-faint);
@@ -203,8 +204,14 @@ html,body{
   font-size:15px;
   padding:11px 12px;
 }
-.field input[type=text]::placeholder{ color:var(--color-dim); }
-.field input[type=text]:focus{ outline:none; border-color:var(--color-orange); }
+.field textarea{
+  resize:none;
+  line-height:1.4;
+}
+.field input[type=text]::placeholder,
+.field textarea::placeholder{ color:var(--color-dim); }
+.field input[type=text]:focus,
+.field textarea:focus{ outline:none; border-color:var(--color-orange); }
 
 .field input[type=range]{
   width:100%;
@@ -403,7 +410,8 @@ html,body{
   #exportAllBtn:not(:disabled):hover{ box-shadow:0 0 14px rgba(200,96,26,0.2); background:rgba(200,96,26,0.08); }
   .reset-link:hover{ color:var(--color-text-base); }
   .checkbox-row:hover span{ color:var(--color-text-strong); }
-  .field input[type=text]:hover{ border-color:var(--color-dim); }
+  .field input[type=text]:hover,
+  .field textarea:hover{ border-color:var(--color-dim); }
 }
 </style>
 </head>
@@ -469,15 +477,15 @@ html,body{
     <div class="tab-panel" id="tabTexto">
       <div class="field">
         <label>Rótulo (a frase principal)</label>
-        <input type="text" id="labelText" placeholder="Ex: Quem Nunca Desliga" maxlength="60">
+        <textarea id="labelText" rows="2" placeholder="Ex: Quem Nunca Desliga&#10;(Enter para quebra de linha própria)" maxlength="140"></textarea>
       </div>
       <div class="field">
         <label>Linha de contexto (opcional)</label>
-        <input type="text" id="contextText" placeholder="Ex: não é cansaço físico, é mental" maxlength="90">
+        <textarea id="contextText" rows="2" placeholder="Ex: não é cansaço físico, é mental" maxlength="200"></textarea>
       </div>
       <div class="field" style="margin-bottom:0;">
         <label>CTA (opcional, linha final)</label>
-        <input type="text" id="ctaText" placeholder="Ex: manda isto a quem também nunca desliga" maxlength="80">
+        <textarea id="ctaText" rows="2" placeholder="Ex: manda isto a quem também nunca desliga" maxlength="160"></textarea>
       </div>
     </div>
 
@@ -540,9 +548,13 @@ html,body{
           <button data-pos="bottom-right"></button>
         </div>
       </div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field">
         <label>Ajuste fino vertical</label>
         <input type="range" id="offsetSlider" min="-300" max="300" value="0">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Tamanho do rótulo</label>
+        <input type="range" id="labelScaleSlider" min="50" max="180" step="5" value="100">
       </div>
     </div>
   </div>
@@ -568,6 +580,7 @@ const overlayOnlyControls = document.getElementById('overlayOnlyControls');
 const uploadRow = document.getElementById('uploadRow');
 const overlayOpacitySlider = document.getElementById('overlayOpacitySlider');
 const offsetSlider = document.getElementById('offsetSlider');
+const labelScaleSlider = document.getElementById('labelScaleSlider');
 
 const PALETTE = [
   {name:'orange', hex:'#C8601A', text:'#EDE5D8'},
@@ -585,7 +598,7 @@ const FORMATS = {
 };
 
 let state = {
-  pages: [ { img:null, labelText:'', contextText:'', ctaText:'' } ],
+  pages: [ { img:null, labelText:'', contextText:'', ctaText:'', labelScale:1 } ],
   currentPage: 0,
   accent: PALETTE[0],
   bgColor: PALETTE[4],
@@ -613,6 +626,7 @@ function loadPageIntoFields() {
   document.getElementById('labelText').value = p.labelText;
   document.getElementById('contextText').value = p.contextText;
   document.getElementById('ctaText').value = p.ctaText;
+  labelScaleSlider.value = Math.round((p.labelScale || 1) * 100);
   if (p.img) {
     emptyState.classList.add('section-hidden');
     exportBtn.disabled = false;
@@ -643,7 +657,7 @@ function renderPageTabs() {
     addTab.className = 'page-tab add';
     addTab.textContent = '+';
     addTab.addEventListener('click', () => {
-      state.pages.push({ img:null, labelText:'', contextText:'', ctaText:'' });
+      state.pages.push({ img:null, labelText:'', contextText:'', ctaText:'', labelScale:1 });
       state.currentPage = state.pages.length - 1;
       loadPageIntoFields();
       renderPageTabs();
@@ -768,6 +782,11 @@ offsetSlider.addEventListener('input', (e) => {
   draw();
 });
 
+labelScaleSlider.addEventListener('input', (e) => {
+  cp().labelScale = parseInt(e.target.value, 10) / 100;
+  draw();
+});
+
 ['labelText','contextText','ctaText'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
     cp()[id] = e.target.value;
@@ -796,12 +815,13 @@ fileInput.addEventListener('change', (e) => {
 });
 
 document.getElementById('resetLink').addEventListener('click', () => {
-  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:''}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top-center', offsetY:0, textureOn:true};
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', labelScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top-center', offsetY:0, textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
   document.getElementById('textureToggle').checked = true;
   offsetSlider.value = 0;
+  labelScaleSlider.value = 100;
   overlayOpacitySlider.value = 45;
   buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, 0, c => state.accent = c);
   buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, 4, c => state.bgColor = c);
@@ -833,19 +853,25 @@ document.getElementById('resetLink').addEventListener('click', () => {
 
 function wrapText(text, maxWidth, font) {
   ctx.font = font;
-  const words = text.split(' ');
   const lines = [];
-  let current = '';
-  for (const w of words) {
-    const test = current ? current + ' ' + w : w;
-    if (ctx.measureText(test).width > maxWidth && current) {
-      lines.push(current);
-      current = w;
-    } else {
-      current = test;
+  // respeita as quebras de linha que a pessoa escreveu (Enter),
+  // e só ajusta automaticamente dentro de cada uma delas se for demasiado comprida
+  const paragraphs = text.split('\n');
+  paragraphs.forEach((paragraph) => {
+    if (paragraph === '') { lines.push(''); return; }
+    const words = paragraph.split(' ');
+    let current = '';
+    for (const w of words) {
+      const test = current ? current + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && current) {
+        lines.push(current);
+        current = w;
+      } else {
+        current = test;
+      }
     }
-  }
-  if (current) lines.push(current);
+    if (current) lines.push(current);
+  });
   return lines;
 }
 
@@ -973,7 +999,7 @@ function draw() {
 
   const paddingX = Math.round(W * 0.06);
   const maxTextWidth = W - paddingX * 2 - Math.round(W*0.07);
-  const labelFontSize = Math.round(W * 0.070);
+  const labelFontSize = Math.round(W * 0.070 * (page.labelScale || 1));
   const contextFontSize = Math.round(W * 0.0315);
   const ctaFontSize = Math.round(W * 0.028);
 
