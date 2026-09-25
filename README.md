@@ -1,6 +1,6 @@
 # Editor de Capas — Honest Navigator
 
-Ferramenta pessoal para criar rápido as capas dos reels/carrosséis do [@sircharlesvonbaptist](https://instagram.com/sircharlesvonbaptist), sem passar pelo Mac/Figma.
+Ferramenta para criar capas de reels/carrosséis fiéis à marca [@sircharlesvonbaptist](https://instagram.com/sircharlesvonbaptist), sem precisar de saber design nem passar por Figma. Feita para ser usada diretamente no telemóvel, inclusive por alguém a quem se passe a tarefa de publicar.
 
 Corre inteiramente no browser — nada é enviado para nenhum servidor. As fontes da marca (Awesome Serif e Anybody) e os ícones estão junto do `index.html`, na raiz do repositório.
 
