@@ -18,9 +18,16 @@
 <link rel="icon" type="image/png" href="icon-180.png">
 
 <style>
-/* As fontes 'BrandHeading' e 'BrandBody' são carregadas em runtime pelo
-   script (loadBrandFonts) — por omissão os ficheiros da Honest Navigator,
-   ou os que a pessoa carregar em "Criar o meu estilo". */
+@font-face {
+  font-family: 'Awesome Serif';
+  src: url('awesome-serif.ttf') format('truetype-variations');
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'Anybody';
+  src: url('anybody.ttf') format('truetype-variations');
+  font-weight: 100 900;
+}
 
 :root{
   --color-bg:           #1C1B17;
@@ -48,7 +55,7 @@ html,body{
   padding:0;
   background:var(--color-bg);
   color:var(--color-text-base);
-  font-family:'BrandBody', sans-serif;
+  font-family:'Anybody', sans-serif;
   font-weight:300;
   min-height:100vh;
 }
@@ -65,7 +72,7 @@ html,body{
 }
 
 .masthead h1{
-  font-family:'BrandHeading', serif;
+  font-family:'Awesome Serif', serif;
   font-weight:300;
   font-size:28px;
   letter-spacing:0.2px;
@@ -81,139 +88,6 @@ html,body{
   text-transform:uppercase;
   color:var(--color-text-mid);
   line-height:1.4;
-}
-
-.masthead-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
-
-.brand-kit-btn{
-  flex-shrink:0;
-  background:transparent;
-  border:0.5px solid var(--color-border-mid);
-  color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
-  font-size:10px;
-  font-weight:400;
-  letter-spacing:var(--tracking-wide);
-  text-transform:uppercase;
-  padding:8px 10px;
-  margin-top:2px;
-}
-
-.brand-panel{
-  position:fixed;
-  inset:0;
-  z-index:50;
-  background:var(--color-bg);
-  overflow-y:auto;
-  padding:24px 20px 60px;
-}
-
-.brand-panel .back-link{
-  display:inline-block;
-  color:var(--color-text-mid);
-  font-size:11px;
-  letter-spacing:var(--tracking-wide);
-  text-transform:uppercase;
-  margin-bottom:24px;
-}
-
-.brand-panel h2{
-  font-family:'BrandHeading', serif;
-  font-weight:300;
-  font-size:24px;
-  color:var(--color-text-strong);
-  margin:0 0 6px;
-}
-
-.brand-panel .tagline{
-  font-size:13px;
-  color:var(--color-text-base);
-  line-height:1.5;
-  margin:0 0 28px;
-  max-width:420px;
-}
-
-.brand-panel .section-label{
-  font-size:11px;
-  letter-spacing:var(--tracking-widest);
-  text-transform:uppercase;
-  color:var(--color-dim);
-  border-bottom:0.5px solid var(--color-border-mid);
-  padding-bottom:10px;
-  margin:32px 0 20px;
-}
-
-.font-upload-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  border:0.5px solid var(--color-faint);
-  padding:12px;
-  margin-bottom:14px;
-}
-.font-upload-row .fu-name{
-  font-size:13px;
-  color:var(--color-text-strong);
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.font-upload-row .fu-role{
-  display:block;
-  font-size:10px;
-  letter-spacing:var(--tracking-wide);
-  text-transform:uppercase;
-  color:var(--color-dim);
-  margin-bottom:3px;
-}
-.font-upload-row button{
-  flex-shrink:0;
-  background:transparent;
-  border:0.5px solid var(--color-border-mid);
-  color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
-  font-size:10px;
-  letter-spacing:var(--tracking-wide);
-  text-transform:uppercase;
-  padding:8px 10px;
-}
-
-.color-row{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:14px;
-}
-.color-row input[type=color]{
-  width:40px;
-  height:40px;
-  padding:0;
-  border:0.5px solid var(--color-border-mid);
-  background:none;
-  flex-shrink:0;
-}
-.color-row .cr-text{ flex:1; min-width:0; }
-.color-row .cr-role{
-  display:block;
-  font-size:12px;
-  color:var(--color-text-strong);
-  margin-bottom:2px;
-}
-.color-row .cr-desc{
-  display:block;
-  font-size:10.5px;
-  color:var(--color-dim);
-}
-.color-row .cr-hex{
-  font-size:10px;
-  color:var(--color-text-mid);
-  letter-spacing:0.03em;
 }
 
 .canvas-zone{
@@ -270,32 +144,6 @@ html,body{
   line-height:1.6;
 }
 
-/* Zona segura do Instagram (Reels/Stories, 1080x1920):
-   ~250px topo, ~340px base, ~90px laterais — só visível no editor, nunca exportada. */
-.safe-zone-overlay{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  z-index:5;
-}
-.sz-line{ position:absolute; }
-.sz-top{
-  top:13.02%; left:0; right:0;
-  border-top:1.5px dashed rgba(255,99,71,0.8);
-}
-.sz-bottom{
-  bottom:17.7%; left:0; right:0;
-  border-top:1.5px dashed rgba(255,99,71,0.8);
-}
-.sz-left{
-  left:8.33%; top:0; bottom:0;
-  border-left:1.5px dashed rgba(255,99,71,0.45);
-}
-.sz-right{
-  right:8.33%; top:0; bottom:0;
-  border-left:1.5px dashed rgba(255,99,71,0.45);
-}
-
 .upload-btn{
   display:block;
   width:100%;
@@ -304,7 +152,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-border-mid);
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'Anybody',sans-serif;
   font-size:11px;
   font-weight:400;
   letter-spacing:var(--tracking-wider);
@@ -351,7 +199,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-faint);
   color:var(--color-text-strong);
-  font-family:'BrandBody',sans-serif;
+  font-family:'Anybody',sans-serif;
   font-weight:300;
   font-size:15px;
   padding:11px 12px;
@@ -411,7 +259,7 @@ html,body{
   border:0.5px solid var(--color-border-mid);
   background:transparent;
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'Anybody',sans-serif;
   font-size:11px;
   font-weight:400;
 }
@@ -436,7 +284,7 @@ html,body{
   border:none;
   padding:0;
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'Anybody',sans-serif;
   font-size:11px;
   font-weight:400;
   letter-spacing:var(--tracking-wider);
@@ -485,7 +333,7 @@ html,body{
   background:transparent;
   border:none;
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'Anybody',sans-serif;
   font-size:10.5px;
   font-weight:400;
   letter-spacing:var(--tracking-wider);
@@ -530,7 +378,7 @@ html,body{
   background:var(--color-orange);
   border:1px solid rgba(200,96,26,0.5);
   color:var(--color-text-strong);
-  font-family:'BrandBody', sans-serif;
+  font-family:'Anybody', sans-serif;
   font-weight:400;
   font-size:12px;
   letter-spacing:var(--tracking-widest);
@@ -557,9 +405,6 @@ html,body{
   .page-tab:not(.active):hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
   .pos-grid button:not(.active):hover{ background:rgba(200,186,168,0.08); }
   .tab-bar button:not(.active):hover{ color:var(--color-text-base); }
-  .brand-kit-btn:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
-  .brand-panel .back-link:hover{ color:var(--color-text-strong); }
-  .font-upload-row button:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
   .swatch:hover{ border-color:var(--color-text-mid); }
   .export-btn:not(:disabled):hover{ box-shadow:0 0 18px rgba(200,96,26,0.3), 0 0 36px rgba(200,96,26,0.1); }
   #exportAllBtn:not(:disabled):hover{ box-shadow:0 0 14px rgba(200,96,26,0.2); background:rgba(200,96,26,0.08); }
@@ -574,82 +419,8 @@ html,body{
 
 <div class="app">
   <div class="masthead">
-    <div class="masthead-row">
-      <div>
-        <h1>Editor de Capas</h1>
-        <p>Cria posts fiéis à marca, sem precisar de saber design.</p>
-      </div>
-      <button class="brand-kit-btn" id="openBrandPanel">Criar o meu estilo</button>
-    </div>
-  </div>
-
-  <div class="brand-panel section-hidden" id="brandPanel">
-    <a class="back-link" id="closeBrandPanel">‹ Voltar ao editor</a>
-    <h2>A tua identidade. As tuas fotos. O teu telemóvel.</h2>
-    <p class="tagline">Dá-me a tua identidade — 2 fontes e 5 cores. Eu trato de manter as tuas capas sempre consistentes com ela.</p>
-
-    <div class="section-label">Tipografia</div>
-    <div class="font-upload-row">
-      <div>
-        <span class="fu-role">Fonte de destaque (rótulos, títulos)</span>
-        <span class="fu-name" id="headingFontName">Honest Navigator (predefinição)</span>
-      </div>
-      <button id="uploadHeadingFontBtn">Carregar</button>
-      <input type="file" id="headingFontInput" accept=".ttf,.otf,.woff,.woff2" style="display:none;">
-    </div>
-    <div class="font-upload-row">
-      <div>
-        <span class="fu-role">Fonte de texto (contexto, CTA)</span>
-        <span class="fu-name" id="bodyFontName">Honest Navigator (predefinição)</span>
-      </div>
-      <button id="uploadBodyFontBtn">Carregar</button>
-      <input type="file" id="bodyFontInput" accept=".ttf,.otf,.woff,.woff2" style="display:none;">
-    </div>
-
-    <div class="section-label">Cores</div>
-    <div class="color-row">
-      <input type="color" id="colorBase">
-      <div class="cr-text">
-        <span class="cr-role">Base</span>
-        <span class="cr-desc">Fundo principal (modo Sólido)</span>
-      </div>
-      <span class="cr-hex" id="hexBase">#1C1B17</span>
-    </div>
-    <div class="color-row">
-      <input type="color" id="colorText">
-      <div class="cr-text">
-        <span class="cr-role">Texto</span>
-        <span class="cr-desc">Cor de texto principal</span>
-      </div>
-      <span class="cr-hex" id="hexText">#EDE5D8</span>
-    </div>
-    <div class="color-row">
-      <input type="color" id="colorAccent">
-      <div class="cr-text">
-        <span class="cr-role">Acento</span>
-        <span class="cr-desc">Rótulos, botão de exportar</span>
-      </div>
-      <span class="cr-hex" id="hexAccent">#C8601A</span>
-    </div>
-    <div class="color-row">
-      <input type="color" id="colorSecondary">
-      <div class="cr-text">
-        <span class="cr-role">Secundária</span>
-        <span class="cr-desc">Alternativa ao acento</span>
-      </div>
-      <span class="cr-hex" id="hexSecondary">#909C78</span>
-    </div>
-    <div class="color-row">
-      <input type="color" id="colorLight">
-      <div class="cr-text">
-        <span class="cr-role">Clara</span>
-        <span class="cr-desc">Tom mais claro de apoio</span>
-      </div>
-      <span class="cr-hex" id="hexLight">#C8A040</span>
-    </div>
-
-    <button class="export-btn" id="saveBrandBtn" style="margin:32px 0 0;width:100%;">Guardar e aplicar</button>
-    <a class="reset-link" id="resetBrandBtn">repor Honest Navigator (predefinição)</a>
+    <h1>Editor de Capas</h1>
+    <p>Cria posts fiéis à marca, sem precisar de saber design.</p>
   </div>
 
   <div class="panel" style="padding-bottom:4px;">
@@ -677,12 +448,6 @@ html,body{
       <div class="empty-state" id="emptyState">
         <div class="glyph">＋</div>
         <span class="msg">carrega uma foto ou<br>um frame do clip</span>
-      </div>
-      <div class="safe-zone-overlay section-hidden" id="safeZoneOverlay">
-        <div class="sz-line sz-top"></div>
-        <div class="sz-line sz-bottom"></div>
-        <div class="sz-line sz-left"></div>
-        <div class="sz-line sz-right"></div>
       </div>
     </div>
     <input type="file" id="fileInput" accept="image/*">
@@ -787,19 +552,9 @@ html,body{
         <label>Ajuste fino vertical</label>
         <input type="range" id="offsetSlider" min="-300" max="300" value="0">
       </div>
-      <div class="field">
-        <label>Tamanho do texto</label>
-        <div class="segmented" id="textScaleSeg">
-          <button data-scale="0.8">Pequeno</button>
-          <button data-scale="1" class="active">Médio</button>
-          <button data-scale="1.25">Grande</button>
-        </div>
-      </div>
-      <div class="field" id="safeZoneField" style="margin-bottom:0;">
-        <div class="checkbox-row">
-          <input type="checkbox" id="safeZoneToggle" checked>
-          <span>Mostrar zona segura do Instagram (só no ecrã)</span>
-        </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Tamanho do rótulo</label>
+        <input type="range" id="labelScaleSlider" min="50" max="180" step="5" value="100">
       </div>
     </div>
   </div>
@@ -819,72 +574,22 @@ const exportBtn = document.getElementById('exportBtn');
 const statusHint = document.getElementById('statusHint');
 const dimsHint = document.getElementById('dimsHint');
 const canvasFrame = document.getElementById('canvasFrame');
-const safeZoneOverlay = document.getElementById('safeZoneOverlay');
-const safeZoneToggle = document.getElementById('safeZoneToggle');
-const safeZoneField = document.getElementById('safeZoneField');
 const photoOnlyControls = document.getElementById('photoOnlyControls');
 const solidOnlyControls = document.getElementById('solidOnlyControls');
 const overlayOnlyControls = document.getElementById('overlayOnlyControls');
 const uploadRow = document.getElementById('uploadRow');
 const overlayOpacitySlider = document.getElementById('overlayOpacitySlider');
 const offsetSlider = document.getElementById('offsetSlider');
-const textScaleSeg = document.getElementById('textScaleSeg');
+const labelScaleSlider = document.getElementById('labelScaleSlider');
 
-const BRAND_STORAGE_KEY = 'editorCapasBrandKit';
-
-const DEFAULT_BRAND = {
-  headingFontName: 'Honest Navigator (predefinição)',
-  headingFontUrl: 'awesome-serif.ttf',
-  bodyFontName: 'Honest Navigator (predefinição)',
-  bodyFontUrl: 'anybody.ttf',
-  colors: {
-    base: '#1C1B17',
-    text: '#EDE5D8',
-    accent: '#C8601A',
-    secondary: '#909C78',
-    light: '#C8A040',
-  },
-};
-
-function loadBrandFromStorage() {
-  try {
-    const raw = localStorage.getItem(BRAND_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || !parsed.colors) return null;
-    return parsed;
-  } catch (e) { return null; }
-}
-
-let currentBrand = loadBrandFromStorage() || DEFAULT_BRAND;
-
-function luminance(hex) {
-  const r = parseInt(hex.slice(1,3),16)/255;
-  const g = parseInt(hex.slice(3,5),16)/255;
-  const b = parseInt(hex.slice(5,7),16)/255;
-  return 0.2126*r + 0.7152*g + 0.0722*b;
-}
-
-function buildPaletteFromBrand(brand) {
-  const roles = [
-    { name: 'acento', hex: brand.colors.accent },
-    { name: 'secundaria', hex: brand.colors.secondary },
-    { name: 'clara', hex: brand.colors.light },
-    { name: 'base', hex: brand.colors.base },
-    { name: 'texto', hex: brand.colors.text },
-  ];
-  return roles.map(r => ({ name: r.name, hex: r.hex, text: luminance(r.hex) > 0.5 ? '#1C1B17' : '#EDE5D8' }));
-}
-
-async function loadBrandFonts(brand) {
-  const headingFace = new FontFace('BrandHeading', `url(${brand.headingFontUrl})`, { weight: '100 900' });
-  const bodyFace = new FontFace('BrandBody', `url(${brand.bodyFontUrl})`, { weight: '100 900' });
-  const [h, b] = await Promise.all([headingFace.load(), bodyFace.load()]);
-  document.fonts.add(h);
-  document.fonts.add(b);
-}
-
-const PALETTE = buildPaletteFromBrand(currentBrand);
+const PALETTE = [
+  {name:'orange', hex:'#C8601A', text:'#EDE5D8'},
+  {name:'sage', hex:'#909C78', text:'#1C1B17'},
+  {name:'amber', hex:'#C8A040', text:'#1C1B17'},
+  {name:'forest', hex:'#1E2818', text:'#EDE5D8'},
+  {name:'cream', hex:'#EDE5D8', text:'#1C1B17'},
+  {name:'near-black', hex:'#1C1B17', text:'#EDE5D8'},
+];
 
 const FORMATS = {
   reel:     {w:1080, h:1920, label:'1080 × 1920'},
@@ -893,7 +598,7 @@ const FORMATS = {
 };
 
 let state = {
-  pages: [ { img:null, labelText:'', contextText:'', ctaText:'', textScale:1 } ],
+  pages: [ { img:null, labelText:'', contextText:'', ctaText:'', labelScale:1 } ],
   currentPage: 0,
   accent: PALETTE[0],
   bgColor: PALETTE[4],
@@ -921,10 +626,7 @@ function loadPageIntoFields() {
   document.getElementById('labelText').value = p.labelText;
   document.getElementById('contextText').value = p.contextText;
   document.getElementById('ctaText').value = p.ctaText;
-  const currentScale = String(p.textScale || 1);
-  document.querySelectorAll('#textScaleSeg button').forEach((b) => {
-    b.classList.toggle('active', b.dataset.scale === currentScale);
-  });
+  labelScaleSlider.value = Math.round((p.labelScale || 1) * 100);
   if (p.img) {
     emptyState.classList.add('section-hidden');
     exportBtn.disabled = false;
@@ -955,7 +657,7 @@ function renderPageTabs() {
     addTab.className = 'page-tab add';
     addTab.textContent = '+';
     addTab.addEventListener('click', () => {
-      state.pages.push({ img:null, labelText:'', contextText:'', ctaText:'', textScale:1 });
+      state.pages.push({ img:null, labelText:'', contextText:'', ctaText:'', labelScale:1 });
       state.currentPage = state.pages.length - 1;
       loadPageIntoFields();
       renderPageTabs();
@@ -1018,7 +720,6 @@ document.getElementById('formatSeg').addEventListener('click', (e) => {
   dimsHint.textContent = f.label;
   pagesField.classList.toggle('section-hidden', state.format !== 'carousel');
   renderPageTabs();
-  updateSafeZoneVisibility();
   draw();
 });
 
@@ -1081,12 +782,8 @@ offsetSlider.addEventListener('input', (e) => {
   draw();
 });
 
-textScaleSeg.addEventListener('click', (e) => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  document.querySelectorAll('#textScaleSeg button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  cp().textScale = parseFloat(btn.dataset.scale);
+labelScaleSlider.addEventListener('input', (e) => {
+  cp().labelScale = parseInt(e.target.value, 10) / 100;
   draw();
 });
 
@@ -1118,13 +815,13 @@ fileInput.addEventListener('change', (e) => {
 });
 
 document.getElementById('resetLink').addEventListener('click', () => {
-  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', textScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top-center', offsetY:0, textureOn:true};
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', labelScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top-center', offsetY:0, textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
   document.getElementById('textureToggle').checked = true;
   offsetSlider.value = 0;
-  document.querySelectorAll('#textScaleSeg button').forEach((b) => b.classList.toggle('active', b.dataset.scale === '1'));
+  labelScaleSlider.value = 100;
   overlayOpacitySlider.value = 45;
   buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, 0, c => state.accent = c);
   buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, 4, c => state.bgColor = c);
@@ -1148,7 +845,6 @@ document.getElementById('resetLink').addEventListener('click', () => {
   canvas.height = FORMATS.reel.h;
   canvasFrame.style.aspectRatio = '9/16';
   dimsHint.textContent = FORMATS.reel.label;
-  updateSafeZoneVisibility();
   emptyState.classList.remove('section-hidden');
   exportBtn.disabled = true;
   statusHint.textContent = 'à espera de imagem';
@@ -1190,6 +886,13 @@ function baseY() {
   if (v === 'top') return height * 0.14;
   if (v === 'mid') return height * 0.42;
   return height * 0.70;
+}
+
+function luminance(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255;
+  const g = parseInt(hex.slice(3,5),16)/255;
+  const b = parseInt(hex.slice(5,7),16)/255;
+  return 0.2126*r + 0.7152*g + 0.0722*b;
 }
 
 let grainBgCache = null;
@@ -1296,14 +999,13 @@ function draw() {
 
   const paddingX = Math.round(W * 0.06);
   const maxTextWidth = W - paddingX * 2 - Math.round(W*0.07);
-  const textScale = page.textScale || 1;
-  const labelFontSize = Math.round(W * 0.070 * textScale);
-  const contextFontSize = Math.round(W * 0.0315 * textScale);
-  const ctaFontSize = Math.round(W * 0.028 * textScale);
+  const labelFontSize = Math.round(W * 0.070 * (page.labelScale || 1));
+  const contextFontSize = Math.round(W * 0.0315);
+  const ctaFontSize = Math.round(W * 0.028);
 
-  const labelFont = `600 ${labelFontSize}px 'BrandHeading'`;
-  const contextFont = `400 ${contextFontSize}px 'BrandBody'`;
-  const ctaFont = `600 ${ctaFontSize}px 'BrandBody'`;
+  const labelFont = `600 ${labelFontSize}px 'Awesome Serif'`;
+  const contextFont = `400 ${contextFontSize}px 'Anybody'`;
+  const ctaFont = `600 ${ctaFontSize}px 'Anybody'`;
 
   const labelLines = page.labelText ? wrapText(page.labelText, maxTextWidth, labelFont) : [];
   const contextLines = page.contextText ? wrapText(page.contextText, maxTextWidth, contextFont) : [];
@@ -1440,7 +1142,7 @@ function drawPageNumber() {
               : '#EDE5D8';
 
   ctx.save();
-  ctx.font = `400 ${fontSize}px 'BrandBody'`;
+  ctx.font = `400 ${fontSize}px 'Anybody'`;
   const numWidth = ctx.measureText(num).width;
   const y = H - marginY;
   const lineY = y - fontSize * 0.32;
@@ -1526,101 +1228,6 @@ exportAllBtn.addEventListener('click', async () => {
 
 renderPageTabs();
 
-function updateSafeZoneVisibility() {
-  const applies = state.format === 'reel';
-  safeZoneField.classList.toggle('section-hidden', !applies);
-  safeZoneOverlay.classList.toggle('section-hidden', !(applies && safeZoneToggle.checked));
-}
-
-safeZoneToggle.addEventListener('change', updateSafeZoneVisibility);
-updateSafeZoneVisibility();
-
-/* ---------- Painel "Criar o meu estilo" ---------- */
-
-const brandPanel = document.getElementById('brandPanel');
-let pendingBrand = JSON.parse(JSON.stringify(currentBrand));
-
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function openBrandPanelFn() {
-  pendingBrand = JSON.parse(JSON.stringify(currentBrand));
-  document.getElementById('headingFontName').textContent = pendingBrand.headingFontName;
-  document.getElementById('bodyFontName').textContent = pendingBrand.bodyFontName;
-  document.getElementById('colorBase').value = pendingBrand.colors.base;
-  document.getElementById('colorText').value = pendingBrand.colors.text;
-  document.getElementById('colorAccent').value = pendingBrand.colors.accent;
-  document.getElementById('colorSecondary').value = pendingBrand.colors.secondary;
-  document.getElementById('colorLight').value = pendingBrand.colors.light;
-  document.getElementById('hexBase').textContent = pendingBrand.colors.base;
-  document.getElementById('hexText').textContent = pendingBrand.colors.text;
-  document.getElementById('hexAccent').textContent = pendingBrand.colors.accent;
-  document.getElementById('hexSecondary').textContent = pendingBrand.colors.secondary;
-  document.getElementById('hexLight').textContent = pendingBrand.colors.light;
-  brandPanel.classList.remove('section-hidden');
-}
-
-document.getElementById('openBrandPanel').addEventListener('click', openBrandPanelFn);
-document.getElementById('closeBrandPanel').addEventListener('click', () => {
-  brandPanel.classList.add('section-hidden');
-});
-
-document.getElementById('uploadHeadingFontBtn').addEventListener('click', () => {
-  document.getElementById('headingFontInput').click();
-});
-document.getElementById('uploadBodyFontBtn').addEventListener('click', () => {
-  document.getElementById('bodyFontInput').click();
-});
-
-document.getElementById('headingFontInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  pendingBrand.headingFontUrl = await fileToDataUrl(file);
-  pendingBrand.headingFontName = file.name;
-  document.getElementById('headingFontName').textContent = file.name;
-});
-document.getElementById('bodyFontInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  pendingBrand.bodyFontUrl = await fileToDataUrl(file);
-  pendingBrand.bodyFontName = file.name;
-  document.getElementById('bodyFontName').textContent = file.name;
-});
-
-[
-  ['colorBase', 'hexBase', 'base'],
-  ['colorText', 'hexText', 'text'],
-  ['colorAccent', 'hexAccent', 'accent'],
-  ['colorSecondary', 'hexSecondary', 'secondary'],
-  ['colorLight', 'hexLight', 'light'],
-].forEach(([inputId, hexId, role]) => {
-  document.getElementById(inputId).addEventListener('input', (e) => {
-    pendingBrand.colors[role] = e.target.value;
-    document.getElementById(hexId).textContent = e.target.value;
-  });
-});
-
-document.getElementById('saveBrandBtn').addEventListener('click', () => {
-  try {
-    localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(pendingBrand));
-  } catch (e) {
-    alert('Não foi possível guardar (armazenamento indisponível). Tenta noutro browser.');
-    return;
-  }
-  location.reload();
-});
-
-document.getElementById('resetBrandBtn').addEventListener('click', () => {
-  try { localStorage.removeItem(BRAND_STORAGE_KEY); } catch (e) {}
-  location.reload();
-});
-
 document.getElementById('tabBar').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
@@ -1632,7 +1239,12 @@ document.getElementById('tabBar').addEventListener('click', (e) => {
   document.getElementById('tabPosicao').classList.toggle('section-hidden', tab !== 'posicao');
 });
 
-loadBrandFonts(currentBrand).then(draw).catch(() => draw());
+document.fonts.load("600 76px 'Awesome Serif'").then(() => {
+  document.fonts.load("400 34px 'Anybody'").then(() => {
+    document.fonts.load("600 30px 'Anybody'").then(draw);
+  });
+});
+document.fonts.ready.then(draw);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
