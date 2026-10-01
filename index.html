@@ -327,6 +327,26 @@ html,body{
   padding:0 2px;
 }
 
+.safe-zone-btn{
+  display:block;
+  width:100%;
+  margin-top:10px;
+  padding:9px;
+  background:transparent;
+  border:0.5px solid var(--color-border-mid);
+  color:var(--color-dim);
+  font-family:'BrandBody',sans-serif;
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:var(--tracking-wide);
+  text-transform:uppercase;
+  text-align:center;
+}
+.safe-zone-btn.on{
+  color:rgba(255,99,71,0.9);
+  border-color:rgba(255,99,71,0.4);
+}
+
 .panel{
   padding:24px 20px 0;
 }
@@ -558,6 +578,7 @@ html,body{
   .pos-grid button:not(.active):hover{ background:rgba(200,186,168,0.08); }
   .tab-bar button:not(.active):hover{ color:var(--color-text-base); }
   .brand-kit-btn:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
+  .safe-zone-btn:not(.on):hover{ color:var(--color-text-base); border-color:var(--color-text-mid); }
   .brand-panel .back-link:hover{ color:var(--color-text-strong); }
   .font-upload-row button:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
   .swatch:hover{ border-color:var(--color-text-mid); }
@@ -693,6 +714,7 @@ html,body{
       <span id="dimsHint">1080 × 1920</span>
       <span id="statusHint">à espera de imagem</span>
     </div>
+    <button class="safe-zone-btn section-hidden" id="safeZoneBtn">Zona segura: ligada</button>
   </div>
 
   <div class="panel" style="padding-top:4px;">
@@ -787,18 +809,12 @@ html,body{
         <label>Ajuste fino vertical</label>
         <input type="range" id="offsetSlider" min="-300" max="300" value="0">
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0;">
         <label>Tamanho do texto</label>
         <div class="segmented" id="textScaleSeg">
           <button data-scale="0.8">Pequeno</button>
           <button data-scale="1" class="active">Médio</button>
           <button data-scale="1.25">Grande</button>
-        </div>
-      </div>
-      <div class="field" id="safeZoneField" style="margin-bottom:0;">
-        <div class="checkbox-row">
-          <input type="checkbox" id="safeZoneToggle" checked>
-          <span>Mostrar zona segura do Instagram (só no ecrã)</span>
         </div>
       </div>
     </div>
@@ -820,8 +836,8 @@ const statusHint = document.getElementById('statusHint');
 const dimsHint = document.getElementById('dimsHint');
 const canvasFrame = document.getElementById('canvasFrame');
 const safeZoneOverlay = document.getElementById('safeZoneOverlay');
-const safeZoneToggle = document.getElementById('safeZoneToggle');
-const safeZoneField = document.getElementById('safeZoneField');
+const safeZoneBtn = document.getElementById('safeZoneBtn');
+let safeZoneVisible = true;
 const photoOnlyControls = document.getElementById('photoOnlyControls');
 const solidOnlyControls = document.getElementById('solidOnlyControls');
 const overlayOnlyControls = document.getElementById('overlayOnlyControls');
@@ -1528,11 +1544,16 @@ renderPageTabs();
 
 function updateSafeZoneVisibility() {
   const applies = state.format === 'reel';
-  safeZoneField.classList.toggle('section-hidden', !applies);
-  safeZoneOverlay.classList.toggle('section-hidden', !(applies && safeZoneToggle.checked));
+  safeZoneBtn.classList.toggle('section-hidden', !applies);
+  safeZoneBtn.classList.toggle('on', safeZoneVisible);
+  safeZoneBtn.textContent = safeZoneVisible ? 'Zona segura: ligada' : 'Zona segura: desligada';
+  safeZoneOverlay.classList.toggle('section-hidden', !(applies && safeZoneVisible));
 }
 
-safeZoneToggle.addEventListener('change', updateSafeZoneVisibility);
+safeZoneBtn.addEventListener('click', () => {
+  safeZoneVisible = !safeZoneVisible;
+  updateSafeZoneVisibility();
+});
 updateSafeZoneVisibility();
 
 /* ---------- Painel "Criar o meu estilo" ---------- */
