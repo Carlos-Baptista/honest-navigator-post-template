@@ -222,7 +222,11 @@ html,body{
 
 .canvas-frame{
   position:relative;
-  width:100%;
+  width:auto;
+  height:44vh;
+  max-height:400px;
+  min-height:220px;
+  margin:0 auto;
   aspect-ratio:9/16;
   background:
     repeating-conic-gradient(rgba(200,186,168,0.04) 0% 25%, transparent 0% 50%) 50% / 24px 24px,
@@ -271,29 +275,18 @@ html,body{
 }
 
 /* Zona segura do Instagram (Reels/Stories, 1080x1920):
-   ~250px topo, ~340px base, ~90px laterais — só visível no editor, nunca exportada. */
+   ~250px topo, ~340px base, ~90px laterais — só visível no editor, nunca exportada.
+   Usa uma imagem SVG esticada a 100% 100% em vez de elementos posicionados por
+   percentagem — o Safari iOS por vezes calcula mal top/bottom em percentagem
+   dentro de contentores com aspect-ratio; background-size não sofre desse bug. */
 .safe-zone-overlay{
   position:absolute;
   inset:0;
   pointer-events:none;
   z-index:5;
-}
-.sz-line{ position:absolute; }
-.sz-top{
-  top:13.02%; left:0; right:0;
-  border-top:1.5px dashed rgba(255,99,71,0.8);
-}
-.sz-bottom{
-  bottom:17.7%; left:0; right:0;
-  border-top:1.5px dashed rgba(255,99,71,0.8);
-}
-.sz-left{
-  left:8.33%; top:0; bottom:0;
-  border-left:1.5px dashed rgba(255,99,71,0.45);
-}
-.sz-right{
-  right:8.33%; top:0; bottom:0;
-  border-left:1.5px dashed rgba(255,99,71,0.45);
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%0A%3Cline%20x1%3D%220%22%20y1%3D%2213.02%22%20x2%3D%22100%22%20y2%3D%2213.02%22%20stroke%3D%22rgba%28255%2C99%2C71%2C0.8%29%22%20stroke-width%3D%220.18%22%20stroke-dasharray%3D%221.4%201%22/%3E%0A%3Cline%20x1%3D%220%22%20y1%3D%2282.3%22%20x2%3D%22100%22%20y2%3D%2282.3%22%20stroke%3D%22rgba%28255%2C99%2C71%2C0.8%29%22%20stroke-width%3D%220.18%22%20stroke-dasharray%3D%221.4%201%22/%3E%0A%3Cline%20x1%3D%228.33%22%20y1%3D%220%22%20x2%3D%228.33%22%20y2%3D%22100%22%20stroke%3D%22rgba%28255%2C99%2C71%2C0.45%29%22%20stroke-width%3D%220.18%22%20stroke-dasharray%3D%221.4%201%22/%3E%0A%3Cline%20x1%3D%2291.67%22%20y1%3D%220%22%20x2%3D%2291.67%22%20y2%3D%22100%22%20stroke%3D%22rgba%28255%2C99%2C71%2C0.45%29%22%20stroke-width%3D%220.18%22%20stroke-dasharray%3D%221.4%201%22/%3E%0A%3C/svg%3E");
+  background-size:100% 100%;
+  background-repeat:no-repeat;
 }
 
 .upload-btn{
@@ -699,12 +692,7 @@ html,body{
         <div class="glyph">＋</div>
         <span class="msg">carrega uma foto ou<br>um frame do clip</span>
       </div>
-      <div class="safe-zone-overlay section-hidden" id="safeZoneOverlay">
-        <div class="sz-line sz-top"></div>
-        <div class="sz-line sz-bottom"></div>
-        <div class="sz-line sz-left"></div>
-        <div class="sz-line sz-right"></div>
-      </div>
+      <div class="safe-zone-overlay section-hidden" id="safeZoneOverlay"></div>
     </div>
     <input type="file" id="fileInput" accept="image/*">
     <div id="uploadRow">
