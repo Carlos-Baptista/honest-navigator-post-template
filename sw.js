@@ -1,6 +1,6 @@
 // Sobe este número sempre que fizeres uma alteração ao ficheiro,
 // para forçar o telemóvel a ir buscar a versão nova em vez de usar a antiga em cache.
-const CACHE_VERSION = 'editor-capas-v11';
+const CACHE_VERSION = 'editor-capas-v13';
 
 const ASSETS = [
   './',

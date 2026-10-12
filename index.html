@@ -18,9 +18,19 @@
 <link rel="icon" type="image/png" href="icon-180.png">
 
 <style>
-/* As fontes 'BrandHeading' e 'BrandBody' são carregadas em runtime pelo
-   script (loadBrandFonts) — por omissão os ficheiros da Honest Navigator,
-   ou os que a pessoa carregar em "Criar o meu estilo". */
+/* A interface usa sempre as fontes da Honest Navigator (UIHeading/UIBody), para continuar
+   legível seja qual for a fonte escolhida. A marca de cada pessoa (BrandHeading/BrandBody,
+   carregadas pelo script) aplica-se só ao conteúdo exportado e à pré-visualização. */
+@font-face {
+  font-family: 'UIHeading';
+  src: url('awesome-serif.ttf') format('truetype-variations');
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'UIBody';
+  src: url('anybody.ttf') format('truetype-variations');
+  font-weight: 100 900;
+}
 
 :root{
   --color-bg:           #1C1B17;
@@ -48,7 +58,7 @@ html,body{
   padding:0;
   background:var(--color-bg);
   color:var(--color-text-base);
-  font-family:'BrandBody', sans-serif;
+  font-family:'UIBody', sans-serif;
   font-weight:300;
   min-height:100vh;
 }
@@ -65,7 +75,7 @@ html,body{
 }
 
 .masthead h1{
-  font-family:'BrandHeading', serif;
+  font-family:'UIHeading', serif;
   font-weight:300;
   font-size:28px;
   letter-spacing:0.2px;
@@ -95,7 +105,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-border-mid);
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:10px;
   font-weight:400;
   letter-spacing:var(--tracking-wide);
@@ -123,7 +133,7 @@ html,body{
 }
 
 .brand-panel h2{
-  font-family:'BrandHeading', serif;
+  font-family:'UIHeading', serif;
   font-weight:300;
   font-size:24px;
   color:var(--color-text-strong);
@@ -177,7 +187,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-border-mid);
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:10px;
   letter-spacing:var(--tracking-wide);
   text-transform:uppercase;
@@ -299,7 +309,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-border-mid);
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:11px;
   font-weight:400;
   letter-spacing:var(--tracking-wider);
@@ -330,7 +340,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-border-mid);
   color:var(--color-dim);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:10px;
   font-weight:400;
   letter-spacing:var(--tracking-wide);
@@ -366,7 +376,7 @@ html,body{
   background:transparent;
   border:0.5px solid var(--color-faint);
   color:var(--color-text-strong);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-weight:300;
   font-size:15px;
   padding:11px 12px;
@@ -457,7 +467,7 @@ html,body{
   border:0.5px solid var(--color-border-mid);
   background:transparent;
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:11px;
   font-weight:400;
 }
@@ -482,7 +492,7 @@ html,body{
   border:none;
   padding:0;
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:11px;
   font-weight:400;
   letter-spacing:var(--tracking-wider);
@@ -540,7 +550,7 @@ html,body{
   background:transparent;
   border:none;
   color:var(--color-text-mid);
-  font-family:'BrandBody',sans-serif;
+  font-family:'UIBody',sans-serif;
   font-size:10.5px;
   font-weight:400;
   letter-spacing:var(--tracking-wider);
@@ -585,7 +595,7 @@ html,body{
   background:var(--color-orange);
   border:1px solid rgba(200,96,26,0.5);
   color:var(--color-text-strong);
-  font-family:'BrandBody', sans-serif;
+  font-family:'UIBody', sans-serif;
   font-weight:400;
   font-size:12px;
   letter-spacing:var(--tracking-widest);
@@ -624,6 +634,68 @@ html,body{
   .field input[type=text]:hover,
   .field textarea:hover{ border-color:var(--color-dim); }
 }
+
+.brand-preview{
+  margin:0 0 8px;
+  padding:26px 18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  text-align:center;
+  background:#1C1B17;
+  box-shadow:inset 0 0 0 1px var(--color-border-mid);
+}
+.bp-label{
+  padding:12px 18px;
+  font-size:24px;
+  font-weight:600;
+  line-height:1.15;
+  max-width:100%;
+}
+.bp-context{ font-size:14px; line-height:1.4; }
+.bp-cta{ font-size:12px; line-height:1.4; opacity:0.7; }
+.bp-chips{ display:flex; gap:6px; margin-top:6px; }
+.bp-chip{
+  width:22px;
+  height:22px;
+  box-shadow:inset 0 0 0 1px rgba(200,186,168,0.3);
+}
+.brand-note{
+  font-size:11px;
+  line-height:1.5;
+  color:var(--color-dim);
+  margin:20px 0 0;
+}
+.brand-links{
+  display:flex;
+  justify-content:center;
+  gap:22px;
+  margin-top:18px;
+}
+.brand-links .reset-link{ margin-top:0; }
+
+.toast{
+  position:fixed;
+  left:20px;
+  right:20px;
+  bottom:24px;
+  z-index:100;
+  max-width:480px;
+  margin:0 auto;
+  padding:12px 14px;
+  background:var(--color-bg-surface);
+  box-shadow:inset 0 0 0 1px var(--color-border-mid);
+  color:var(--color-text-strong);
+  font-size:11px;
+  letter-spacing:var(--tracking-wide);
+  text-transform:uppercase;
+  line-height:1.5;
+}
+.toast.err{
+  color:var(--color-orange);
+  box-shadow:inset 0 0 0 1px rgba(200,96,26,0.6);
+}
 </style>
 </head>
 <body>
@@ -643,6 +715,14 @@ html,body{
     <a class="back-link" id="closeBrandPanel">‹ Voltar ao editor</a>
     <h2>A tua identidade. As tuas fotos. O teu telemóvel.</h2>
     <p class="tagline">Dá-me a tua identidade — 2 fontes e 5 cores. Eu trato de manter as tuas capas sempre consistentes com ela.</p>
+
+    <div class="section-label">Pré-visualização</div>
+    <div class="brand-preview" id="brandPreview">
+      <div class="bp-label" id="bpLabel">Quem nunca desliga</div>
+      <div class="bp-context" id="bpContext">não é cansaço físico, é mental</div>
+      <div class="bp-cta" id="bpCta">manda isto a quem também nunca desliga</div>
+      <div class="bp-chips" id="bpChips"></div>
+    </div>
 
     <div class="section-label">Tipografia</div>
     <div class="font-upload-row">
@@ -704,7 +784,13 @@ html,body{
       <span class="cr-hex" id="hexLight">#C8A040</span>
     </div>
 
-    <button class="export-btn" id="saveBrandBtn" style="margin:32px 0 0;width:100%;">Guardar e aplicar</button>
+    <p class="brand-note">Guardar recarrega a app: os textos mantêm-se, mas as fotos já carregadas têm de ser adicionadas de novo. Tudo fica neste dispositivo.</p>
+    <button class="export-btn" id="saveBrandBtn" style="margin:20px 0 0;width:100%;">Guardar e aplicar</button>
+    <div class="brand-links">
+      <a class="reset-link" id="exportBrandBtn">exportar estilo</a>
+      <a class="reset-link" id="importBrandBtn">importar estilo</a>
+    </div>
+    <input type="file" id="importBrandInput" accept=".json,application/json,text/plain" style="display:none;">
     <a class="reset-link" id="resetBrandBtn">repor Honest Navigator (predefinição)</a>
   </div>
 
@@ -778,7 +864,7 @@ html,body{
 
     <div class="tab-panel section-hidden" id="tabEstilo">
       <div id="photoOnlyControls">
-        <div class="field">
+        <div class="field" id="accentField">
           <label>Cor do rótulo</label>
           <div class="swatches" id="swatchesAccent"></div>
         </div>
@@ -787,6 +873,14 @@ html,body{
           <div class="segmented" id="styleSeg">
             <button data-style="solid" class="active">Sólido</button>
             <button data-style="paper">Papel</button>
+            <button data-style="none">Sem caixa</button>
+          </div>
+        </div>
+        <div class="field section-hidden" id="noBoxColorField" style="margin:20px 0 0;">
+          <label>Cor do texto (garante o contraste)</label>
+          <div class="segmented" id="noBoxColorSeg">
+            <button data-color="white" class="active">Branco</button>
+            <button data-color="black">Preto</button>
           </div>
         </div>
       </div>
@@ -855,6 +949,8 @@ html,body{
   <a class="reset-link" id="resetLink">recomeçar</a>
 </div>
 
+<div class="toast section-hidden" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -892,15 +988,43 @@ const DEFAULT_BRAND = {
   },
 };
 
+/*PURE:BRAND:START*/
+const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+const BRAND_VERSION = 1;
+const MAX_FONT_BYTES = 800 * 1024;          // por fonte; duas cabem folgadamente no localStorage
+const MAX_FONT_URL_CHARS = 1500000;         // data URI de uma fonte de 800 KB ronda 1,1 M de caracteres
+
+// Aceita só o que reconhece; tudo o resto volta ao valor predefinido.
+function sanitizeBrand(raw) {
+  if (!raw || typeof raw !== 'object' || !raw.colors || typeof raw.colors !== 'object') return null;
+  const d = DEFAULT_BRAND;
+  const colors = {};
+  for (const k of Object.keys(d.colors)) {
+    const v = raw.colors[k];
+    colors[k] = (typeof v === 'string' && HEX_RE.test(v)) ? v.toUpperCase() : d.colors[k];
+  }
+  const fontOk = (u) => typeof u === 'string' && u.startsWith('data:') && u.length < MAX_FONT_URL_CHARS;
+  const nameOf = (n) => (typeof n === 'string' && n.trim()) ? n.trim().slice(0, 80) : 'fonte personalizada';
+  const hCustom = fontOk(raw.headingFontUrl);
+  const bCustom = fontOk(raw.bodyFontUrl);
+  return {
+    version: BRAND_VERSION,
+    headingFontName: hCustom ? nameOf(raw.headingFontName) : d.headingFontName,
+    headingFontUrl: hCustom ? raw.headingFontUrl : d.headingFontUrl,
+    bodyFontName: bCustom ? nameOf(raw.bodyFontName) : d.bodyFontName,
+    bodyFontUrl: bCustom ? raw.bodyFontUrl : d.bodyFontUrl,
+    colors,
+  };
+}
+
 function loadBrandFromStorage() {
   try {
     const raw = localStorage.getItem(BRAND_STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || !parsed.colors) return null;
-    return parsed;
+    return sanitizeBrand(JSON.parse(raw));
   } catch (e) { return null; }
 }
+/*PURE:BRAND:END*/
 
 let currentBrand = loadBrandFromStorage() || DEFAULT_BRAND;
 
@@ -922,12 +1046,32 @@ function buildPaletteFromBrand(brand) {
   return roles.map(r => ({ name: r.name, hex: r.hex, text: luminance(r.hex) > 0.5 ? '#1C1B17' : '#EDE5D8' }));
 }
 
+let brandProblems = [];   // 'heading' / 'body' quando a fonte guardada não carregou
+
+async function loadFontFace(family, url) {
+  const face = new FontFace(family, `url("${url}")`, { weight: '100 900' });
+  await face.load();   // rejeita se o ficheiro não for uma fonte válida
+  return face;
+}
+
+// Cada fonte é tratada à parte: se a guardada falhar, só essa volta à predefinida.
 async function loadBrandFonts(brand) {
-  const headingFace = new FontFace('BrandHeading', `url(${brand.headingFontUrl})`, { weight: '100 900' });
-  const bodyFace = new FontFace('BrandBody', `url(${brand.bodyFontUrl})`, { weight: '100 900' });
-  const [h, b] = await Promise.all([headingFace.load(), bodyFace.load()]);
+  const problems = [];
+  const one = async (family, url, fallbackUrl, role) => {
+    try { return await loadFontFace(family, url); }
+    catch (err) {
+      if (url === fallbackUrl) throw err;
+      problems.push(role);
+      return await loadFontFace(family, fallbackUrl);
+    }
+  };
+  const [h, b] = await Promise.all([
+    one('BrandHeading', brand.headingFontUrl, DEFAULT_BRAND.headingFontUrl, 'heading'),
+    one('BrandBody', brand.bodyFontUrl, DEFAULT_BRAND.bodyFontUrl, 'body'),
+  ]);
   document.fonts.add(h);
   document.fonts.add(b);
+  return problems;
 }
 
 const PALETTE = buildPaletteFromBrand(currentBrand);
@@ -948,13 +1092,174 @@ let state = {
   overlayOpacity: 45,
   format: 'reel',
   bgMode: 'photo',
-  boxStyle: 'solid',
+  boxStyle: 'solid',          // 'solid' | 'paper' | 'none'
+  noBoxColor: 'white',        // com 'none': texto só branco ou só preto
   position: 'top-center',
   offsetY: 0,
   textureOn: true,
 };
 
 function cp() { return state.pages[state.currentPage]; }
+
+// Cor do texto quando a foto não tem caixa: só branco ou só preto, para garantir o contraste.
+function noBoxHex() { return state.noBoxColor === 'black' ? '#000000' : '#FFFFFF'; }
+
+/* ---------- Aviso curto (substitui alert) ---------- */
+let toastTimer = null;
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isError);
+  t.classList.remove('section-hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('section-hidden'), 6500);
+}
+
+/*PURE:APP:START*/
+/* ---------- Imagens: plano de redução ---------- */
+// O maior formato (Reel, 1080x1920) define até onde a foto precisa de resolução.
+const IMG_TARGET_W = 1080;
+const IMG_TARGET_H = 1920;
+// O iOS recusa canvas acima de ~16,7 M de pixels.
+const MAX_CANVAS_AREA = 16000000;
+
+// Devolve o tamanho final (que cobre o Reel a 1x, nunca ampliando) e os passos
+// intermédios, para reduzir por etapas sem criar canvas acima do limite do iOS.
+function planDownscale(w, h) {
+  const s = Math.min(1, Math.max(IMG_TARGET_W / w, IMG_TARGET_H / h));
+  const tw = Math.max(1, Math.round(w * s));
+  const th = Math.max(1, Math.round(h * s));
+  const steps = [];
+  let cw = w, ch = h;
+  for (let guard = 0; guard < 12; guard++) {
+    let f = 0.5;
+    if (cw * f * ch * f > MAX_CANVAS_AREA) f = Math.sqrt(MAX_CANVAS_AREA / (cw * ch));
+    // floor, não round: garante que a área nunca passa o limite e que o passo realmente encolhe
+    const nw = Math.floor(cw * f), nh = Math.floor(ch * f);
+    if (nw < tw || nh < th || (nw >= cw && nh >= ch)) break;
+    steps.push({ w: nw, h: nh });
+    cw = nw; ch = nh;
+  }
+  return { tw, th, steps };
+}
+
+/* ---------- Rascunho: validação ---------- */
+const DRAFT_KEY = 'editorCapasDraft';
+const POS_RE = /^(top|mid|bottom)-(left|center|right)$/;
+
+// Só texto e definições — as fotos nunca são guardadas.
+function sanitizeDraft(d, paletteNames) {
+  if (!d || typeof d !== 'object' || d.version !== 1 || !Array.isArray(d.pages) || d.pages.length === 0) return null;
+  const clip = (s, n) => typeof s === 'string' ? s.slice(0, n) : '';
+  const scales = [0.8, 1, 1.25];
+  const pages = d.pages.slice(0, MAX_PAGES).map((p) => {
+    p = (p && typeof p === 'object') ? p : {};
+    return {
+      labelText: clip(p.labelText, 140),
+      contextText: clip(p.contextText, 200),
+      ctaText: clip(p.ctaText, 160),
+      textScale: scales.includes(p.textScale) ? p.textScale : 1,
+    };
+  });
+  const name = (n, fb) => paletteNames.includes(n) ? n : fb;
+  const num = (v, min, max, fb) => (typeof v === 'number' && isFinite(v)) ? Math.min(max, Math.max(min, v)) : fb;
+  return {
+    pages,
+    currentPage: (Number.isInteger(d.currentPage) && d.currentPage >= 0 && d.currentPage < pages.length) ? d.currentPage : 0,
+    format: Object.prototype.hasOwnProperty.call(FORMATS, d.format) ? d.format : 'reel',
+    bgMode: ['photo', 'overlay', 'solid'].includes(d.bgMode) ? d.bgMode : 'photo',
+    boxStyle: ['solid', 'paper', 'none'].includes(d.boxStyle) ? d.boxStyle : 'solid',
+    noBoxColor: ['white', 'black'].includes(d.noBoxColor) ? d.noBoxColor : 'white',
+    position: (typeof d.position === 'string' && POS_RE.test(d.position)) ? d.position : 'top-center',
+    offsetY: Math.round(num(d.offsetY, -300, 300, 0)),
+    overlayOpacity: Math.round(num(d.overlayOpacity, 0, 90, 45)),
+    textureOn: typeof d.textureOn === 'boolean' ? d.textureOn : true,
+    accent: name(d.accent, 'acento'),
+    bgColor: name(d.bgColor, 'texto'),
+    textColor: name(d.textColor, 'base'),
+    overlayTextColor: name(d.overlayTextColor, 'texto'),
+  };
+}
+/*PURE:APP:END*/
+
+/* ---------- Imagens: carregar, reduzir e libertar memória ---------- */
+function releaseImage(img) {
+  // O Safari só liberta a memória de um canvas quando ele é posto a 0x0.
+  if (img && img.tagName === 'CANVAS') { img.width = 0; img.height = 0; }
+}
+
+function loadImageElement(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => resolve({ img, url });
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode')); };
+    img.src = url;
+  });
+}
+
+function downscaleToCover(img) {
+  const w = img.naturalWidth, h = img.naturalHeight;
+  if (!w || !h) throw new Error('empty');
+  const plan = planDownscale(w, h);
+  let src = img;
+  for (const s of plan.steps) {
+    const step = document.createElement('canvas');
+    step.width = s.w; step.height = s.h;
+    const sctx = step.getContext('2d');
+    if (!sctx) throw new Error('canvas');
+    sctx.imageSmoothingQuality = 'high';
+    sctx.drawImage(src, 0, 0, s.w, s.h);
+    if (src !== img) releaseImage(src);
+    src = step;
+  }
+  const out = document.createElement('canvas');
+  out.width = plan.tw; out.height = plan.th;
+  const octx = out.getContext('2d');
+  if (!octx) throw new Error('canvas');
+  octx.imageSmoothingQuality = 'high';
+  octx.drawImage(src, 0, 0, plan.tw, plan.th);
+  if (src !== img) releaseImage(src);
+  return out;
+}
+
+function syncPhotoStatus() {
+  if (state.bgMode === 'solid') { statusHint.textContent = 'fundo sólido'; return; }
+  const has = !!cp().img;
+  emptyState.classList.toggle('section-hidden', has);
+  exportBtn.disabled = !has;
+  statusHint.textContent = has ? 'imagem carregada' : 'à espera de imagem';
+}
+
+/* ---------- Rascunho: guardar ---------- */
+let restoringDraft = false;
+let draftTimer = null;
+
+function serializeDraft() {
+  return {
+    version: 1,
+    format: state.format, bgMode: state.bgMode, boxStyle: state.boxStyle, noBoxColor: state.noBoxColor,
+    position: state.position, offsetY: state.offsetY, textureOn: state.textureOn,
+    overlayOpacity: state.overlayOpacity,
+    accent: state.accent.name, bgColor: state.bgColor.name,
+    textColor: state.textColor.name, overlayTextColor: state.overlayTextColor.name,
+    currentPage: state.currentPage,
+    pages: state.pages.map((p) => ({ labelText: p.labelText, contextText: p.contextText, ctaText: p.ctaText, textScale: p.textScale })),
+  };
+}
+function saveDraftNow() {
+  if (restoringDraft) return;
+  clearTimeout(draftTimer);
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeDraft())); } catch (e) { /* sem espaço ou bloqueado: o rascunho é opcional */ }
+}
+function scheduleDraftSave() {
+  if (restoringDraft) return;
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraftNow, 500);
+}
+// O iOS pode descartar o separador sem aviso: guardar assim que a app passa para segundo plano.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveDraftNow(); });
+window.addEventListener('pagehide', saveDraftNow);
 
 const pageTabsEl = document.getElementById('pageTabs');
 const pagesField = document.getElementById('pagesField');
@@ -1015,6 +1320,7 @@ function renderPageTabs() {
 
 removePageLink.addEventListener('click', () => {
   if (state.pages.length <= 1) return;
+  releaseImage(state.pages[state.currentPage].img);
   state.pages.splice(state.currentPage, 1);
   state.currentPage = Math.max(0, state.currentPage - 1);
   loadPageIntoFields();
@@ -1113,9 +1419,26 @@ document.querySelectorAll('#styleSeg button').forEach(btn => {
     document.querySelectorAll('#styleSeg button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.boxStyle = btn.dataset.style;
+    updateBoxStyleControls();
     draw();
   });
 });
+
+document.querySelectorAll('#noBoxColorSeg button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#noBoxColorSeg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.noBoxColor = btn.dataset.color;
+    draw();
+  });
+});
+
+// Sem caixa não há cor de rótulo; só faz sentido escolher branco ou preto.
+function updateBoxStyleControls() {
+  const none = state.boxStyle === 'none';
+  document.getElementById('accentField').classList.toggle('section-hidden', none);
+  document.getElementById('noBoxColorField').classList.toggle('section-hidden', !none);
+}
 
 document.getElementById('textureToggle').addEventListener('change', (e) => {
   state.textureOn = e.target.checked;
@@ -1145,26 +1468,35 @@ textScaleSeg.addEventListener('click', (e) => {
 
 uploadBtn.addEventListener('click', () => fileInput.click());
 
-fileInput.addEventListener('change', (e) => {
+fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
+  e.target.value = '';   // permite escolher o mesmo ficheiro outra vez
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => {
-      cp().img = img;
-      emptyState.classList.add('section-hidden');
-      exportBtn.disabled = false;
-      statusHint.textContent = 'imagem carregada';
-      draw();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
+  if (file.type && !file.type.startsWith('image/')) {
+    showToast('Esse ficheiro não é uma imagem.', true);
+    return;
+  }
+  const target = cp();   // a página para onde a foto foi pedida, mesmo que se mude de página entretanto
+  statusHint.textContent = 'a processar imagem…';
+  let loaded = null;
+  try {
+    loaded = await loadImageElement(file);
+    const reduced = downscaleToCover(loaded.img);
+    releaseImage(target.img);
+    target.img = reduced;
+  } catch (err) {
+    showToast('Não foi possível abrir esta imagem. Tenta outra (JPG ou PNG).', true);
+  } finally {
+    if (loaded) { URL.revokeObjectURL(loaded.url); loaded.img.src = ''; }
+  }
+  syncPhotoStatus();
+  draw();
 });
 
 document.getElementById('resetLink').addEventListener('click', () => {
-  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', textScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', position:'top-center', offsetY:0, textureOn:true};
+  state.pages.forEach((p) => releaseImage(p.img));
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', textScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', noBoxColor:'white', position:'top-center', offsetY:0, textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
@@ -1178,6 +1510,8 @@ document.getElementById('resetLink').addEventListener('click', () => {
   buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, 4, c => state.overlayTextColor = c);
   document.querySelectorAll('#posGrid button').forEach((b) => b.classList.toggle('active', b.dataset.pos === 'top-center'));
   document.querySelectorAll('#styleSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('#noBoxColorSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
+  updateBoxStyleControls();
   document.querySelectorAll('#formatSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#bgSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   photoOnlyControls.classList.remove('section-hidden');
@@ -1314,6 +1648,7 @@ function drawSolidBackground() {
 }
 
 function draw() {
+  scheduleDraftSave();
   const W = canvas.width, H = canvas.height;
   const page = cp();
   ctx.clearRect(0,0,W,H);
@@ -1360,7 +1695,7 @@ function draw() {
 
   const blockHeight = (labelLines.length * lineGapLabel) + gapBetween + (contextLines.length * lineGapContext);
 
-  if (state.bgMode === 'photo') {
+  if (state.bgMode === 'photo' && state.boxStyle !== 'none') {
     const boxPadV = Math.round(labelFontSize * 0.58);
     const boxPadH = Math.round(labelFontSize * 0.63);
 
@@ -1426,7 +1761,9 @@ function draw() {
   } else {
     const startY = baseY() + state.offsetY;
     const { h: hAlign } = positionParts();
-    const directColor = state.bgMode === 'overlay' ? state.overlayTextColor.hex : state.textColor.hex;
+    const directColor = state.bgMode === 'overlay' ? state.overlayTextColor.hex
+                      : state.bgMode === 'photo' ? noBoxHex()
+                      : state.textColor.hex;
     const textAlign = hAlign === 'left' ? 'left' : hAlign === 'right' ? 'right' : 'center';
     const textX = hAlign === 'left' ? paddingX : hAlign === 'right' ? W - paddingX : W/2;
     ctx.textAlign = textAlign;
@@ -1460,6 +1797,7 @@ function draw() {
     const ctaY = H - H*0.062;
     const ctaColor = state.bgMode === 'solid' ? state.textColor.hex
                     : state.bgMode === 'overlay' ? state.overlayTextColor.hex
+                    : state.boxStyle === 'none' ? noBoxHex()
                     : '#EDE5D8';
     ctx.fillStyle = ctaColor;
     ctx.globalAlpha = 0.7;
@@ -1483,6 +1821,7 @@ function drawPageNumber() {
   const fontSize = Math.round(W * 0.024);
   const color = state.bgMode === 'solid' ? state.textColor.hex
               : state.bgMode === 'overlay' ? state.overlayTextColor.hex
+              : state.boxStyle === 'none' ? noBoxHex()
               : '#EDE5D8';
 
   ctx.save();
@@ -1595,31 +1934,101 @@ function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
+    reader.onerror = () => reject(new Error('read'));
     reader.readAsDataURL(file);
   });
 }
 
-function openBrandPanelFn() {
+/* Pré-visualização: usa a marca em vigor ('BrandHeading'/'BrandBody') ou, para uma fonte
+   acabada de escolher, uma família temporária que só existe enquanto o painel está aberto. */
+let previewSeq = 0;
+const previewFaces = { heading: null, body: null };
+const previewFamilies = { heading: 'BrandHeading', body: 'BrandBody' };
+
+function dropPreviewFace(role) {
+  if (previewFaces[role]) { document.fonts.delete(previewFaces[role]); previewFaces[role] = null; }
+}
+
+async function setPreviewFont(role, url) {
+  const inUse = url === currentBrand[role + 'FontUrl'] && !brandProblems.includes(role);
+  if (inUse) {
+    dropPreviewFace(role);
+    previewFamilies[role] = role === 'heading' ? 'BrandHeading' : 'BrandBody';
+    return;
+  }
+  const family = 'Preview' + role + (++previewSeq);
+  const face = await loadFontFace(family, url);   // rejeita se não for uma fonte válida
+  document.fonts.add(face);
+  dropPreviewFace(role);
+  previewFaces[role] = face;
+  previewFamilies[role] = family;
+}
+
+function updateBrandPreview() {
+  const c = pendingBrand.colors;
+  document.getElementById('brandPreview').style.background = c.base;
+  const label = document.getElementById('bpLabel');
+  label.style.background = c.accent;
+  label.style.color = luminance(c.accent) > 0.5 ? '#1C1B17' : '#EDE5D8';
+  label.style.fontFamily = `'${previewFamilies.heading}', serif`;
+  const ctxEl = document.getElementById('bpContext');
+  ctxEl.style.color = c.text;
+  ctxEl.style.fontFamily = `'${previewFamilies.body}', sans-serif`;
+  const cta = document.getElementById('bpCta');
+  cta.style.color = c.text;
+  cta.style.fontFamily = `'${previewFamilies.body}', sans-serif`;
+  const chips = document.getElementById('bpChips');
+  chips.innerHTML = '';
+  ['base', 'text', 'accent', 'secondary', 'light'].forEach((k) => {
+    const chip = document.createElement('span');
+    chip.className = 'bp-chip';
+    chip.style.background = c[k];
+    chips.appendChild(chip);
+  });
+}
+
+function refreshBrandPanel() {
+  const problemNote = (role) => brandProblems.includes(role) ? ' — a fonte guardada não carregou' : '';
+  document.getElementById('headingFontName').textContent = pendingBrand.headingFontName + (pendingBrand.headingFontUrl === DEFAULT_BRAND.headingFontUrl ? problemNote('heading') : '');
+  document.getElementById('bodyFontName').textContent = pendingBrand.bodyFontName + (pendingBrand.bodyFontUrl === DEFAULT_BRAND.bodyFontUrl ? problemNote('body') : '');
+  [
+    ['colorBase', 'hexBase', 'base'],
+    ['colorText', 'hexText', 'text'],
+    ['colorAccent', 'hexAccent', 'accent'],
+    ['colorSecondary', 'hexSecondary', 'secondary'],
+    ['colorLight', 'hexLight', 'light'],
+  ].forEach(([inputId, hexId, role]) => {
+    document.getElementById(inputId).value = pendingBrand.colors[role];
+    document.getElementById(hexId).textContent = pendingBrand.colors[role];
+  });
+  updateBrandPreview();
+}
+
+async function openBrandPanelFn() {
   pendingBrand = JSON.parse(JSON.stringify(currentBrand));
-  document.getElementById('headingFontName').textContent = pendingBrand.headingFontName;
-  document.getElementById('bodyFontName').textContent = pendingBrand.bodyFontName;
-  document.getElementById('colorBase').value = pendingBrand.colors.base;
-  document.getElementById('colorText').value = pendingBrand.colors.text;
-  document.getElementById('colorAccent').value = pendingBrand.colors.accent;
-  document.getElementById('colorSecondary').value = pendingBrand.colors.secondary;
-  document.getElementById('colorLight').value = pendingBrand.colors.light;
-  document.getElementById('hexBase').textContent = pendingBrand.colors.base;
-  document.getElementById('hexText').textContent = pendingBrand.colors.text;
-  document.getElementById('hexAccent').textContent = pendingBrand.colors.accent;
-  document.getElementById('hexSecondary').textContent = pendingBrand.colors.secondary;
-  document.getElementById('hexLight').textContent = pendingBrand.colors.light;
+  // Se a fonte guardada falhou, o painel parte da predefinida em vez de a voltar a guardar.
+  ['heading', 'body'].forEach((role) => {
+    if (brandProblems.includes(role)) {
+      pendingBrand[role + 'FontUrl'] = DEFAULT_BRAND[role + 'FontUrl'];
+      pendingBrand[role + 'FontName'] = DEFAULT_BRAND[role + 'FontName'];
+    }
+  });
+  refreshBrandPanel();
   brandPanel.classList.remove('section-hidden');
+  try {
+    await Promise.all([
+      setPreviewFont('heading', pendingBrand.headingFontUrl),
+      setPreviewFont('body', pendingBrand.bodyFontUrl),
+    ]);
+  } catch (err) { /* a pré-visualização cai para a fonte do sistema */ }
+  updateBrandPreview();
 }
 
 document.getElementById('openBrandPanel').addEventListener('click', openBrandPanelFn);
 document.getElementById('closeBrandPanel').addEventListener('click', () => {
   brandPanel.classList.add('section-hidden');
+  dropPreviewFace('heading');
+  dropPreviewFace('body');
 });
 
 document.getElementById('uploadHeadingFontBtn').addEventListener('click', () => {
@@ -1629,20 +2038,28 @@ document.getElementById('uploadBodyFontBtn').addEventListener('click', () => {
   document.getElementById('bodyFontInput').click();
 });
 
-document.getElementById('headingFontInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
+// Valida antes de aceitar: tamanho e se o browser consegue mesmo carregar a fonte.
+async function onFontPicked(role, input) {
+  const file = input.files[0];
+  input.value = '';
   if (!file) return;
-  pendingBrand.headingFontUrl = await fileToDataUrl(file);
-  pendingBrand.headingFontName = file.name;
-  document.getElementById('headingFontName').textContent = file.name;
-});
-document.getElementById('bodyFontInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  pendingBrand.bodyFontUrl = await fileToDataUrl(file);
-  pendingBrand.bodyFontName = file.name;
-  document.getElementById('bodyFontName').textContent = file.name;
-});
+  if (file.size > MAX_FONT_BYTES) {
+    showToast('Essa fonte é demasiado grande (máx. 800 KB). Usa uma versão mais leve, por exemplo WOFF2.', true);
+    return;
+  }
+  try {
+    const url = await fileToDataUrl(file);
+    await setPreviewFont(role, url);
+    pendingBrand[role + 'FontUrl'] = url;
+    pendingBrand[role + 'FontName'] = file.name;
+    document.getElementById(role + 'FontName').textContent = file.name;
+    updateBrandPreview();
+  } catch (err) {
+    showToast('Esse ficheiro não é uma fonte válida (usa TTF, OTF, WOFF ou WOFF2).', true);
+  }
+}
+document.getElementById('headingFontInput').addEventListener('change', (e) => onFontPicked('heading', e.target));
+document.getElementById('bodyFontInput').addEventListener('change', (e) => onFontPicked('body', e.target));
 
 [
   ['colorBase', 'hexBase', 'base'],
@@ -1654,22 +2071,69 @@ document.getElementById('bodyFontInput').addEventListener('change', async (e) =>
   document.getElementById(inputId).addEventListener('input', (e) => {
     pendingBrand.colors[role] = e.target.value;
     document.getElementById(hexId).textContent = e.target.value;
+    updateBrandPreview();
   });
 });
 
 document.getElementById('saveBrandBtn').addEventListener('click', () => {
+  const brand = sanitizeBrand(pendingBrand);
   try {
-    localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(pendingBrand));
+    localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(brand));
   } catch (e) {
-    alert('Não foi possível guardar (armazenamento indisponível). Tenta noutro browser.');
+    const quota = e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22);
+    showToast(quota
+      ? 'Sem espaço para guardar o estilo. Usa fontes mais leves (por exemplo WOFF2).'
+      : 'Este browser não deixou guardar o estilo (armazenamento bloqueado?).', true);
     return;
   }
+  saveDraftNow();   // o texto sobrevive ao recarregamento; as fotos não
   location.reload();
 });
 
 document.getElementById('resetBrandBtn').addEventListener('click', () => {
   try { localStorage.removeItem(BRAND_STORAGE_KEY); } catch (e) {}
+  saveDraftNow();
   location.reload();
+});
+
+/* Exportar / importar o estilo: permite passá-lo a um amigo ou levá-lo do Safari para a app instalada. */
+document.getElementById('exportBrandBtn').addEventListener('click', async () => {
+  const payload = JSON.stringify({ type: 'editor-capas-estilo', version: 1, brand: sanitizeBrand(pendingBrand) });
+  const file = new File([payload], 'o-meu-estilo.json', { type: 'text/plain' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; }
+    catch (err) { if (err && err.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url; a.download = file.name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+});
+
+document.getElementById('importBrandBtn').addEventListener('click', () => {
+  document.getElementById('importBrandInput').click();
+});
+document.getElementById('importBrandInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    if (file.size > 2500000) throw new Error('size');
+    const data = JSON.parse(await file.text());
+    const brand = sanitizeBrand(data && data.brand);
+    if (!brand) throw new Error('format');
+    pendingBrand = brand;
+    refreshBrandPanel();
+    await Promise.all([
+      setPreviewFont('heading', pendingBrand.headingFontUrl),
+      setPreviewFont('body', pendingBrand.bodyFontUrl),
+    ]);
+    updateBrandPreview();
+    showToast('Estilo importado. Carrega em "Guardar e aplicar" para o usar.');
+  } catch (err) {
+    showToast('Esse ficheiro não é um estilo válido.', true);
+  }
 });
 
 document.getElementById('tabBar').addEventListener('click', (e) => {
@@ -1683,7 +2147,59 @@ document.getElementById('tabBar').addEventListener('click', (e) => {
   document.getElementById('tabPosicao').classList.toggle('section-hidden', tab !== 'posicao');
 });
 
-loadBrandFonts(currentBrand).then(draw).catch(() => draw());
+function restoreDraft() {
+  let raw = null;
+  try { raw = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { return; }
+  const d = sanitizeDraft(raw, PALETTE.map((p) => p.name));
+  if (!d) return;
+  restoringDraft = true;
+  try {
+    state.pages = d.pages.map((p) => ({ img: null, ...p }));
+    state.currentPage = d.currentPage;
+    const byName = (n) => PALETTE.find((p) => p.name === n);
+    state.accent = byName(d.accent);
+    state.bgColor = byName(d.bgColor);
+    state.textColor = byName(d.textColor);
+    state.overlayTextColor = byName(d.overlayTextColor);
+    state.format = d.format; state.bgMode = d.bgMode; state.boxStyle = d.boxStyle; state.noBoxColor = d.noBoxColor;
+    state.position = d.position; state.offsetY = d.offsetY;
+    state.overlayOpacity = d.overlayOpacity; state.textureOn = d.textureOn;
+
+    offsetSlider.value = d.offsetY;
+    overlayOpacitySlider.value = d.overlayOpacity;
+    document.getElementById('textureToggle').checked = d.textureOn;
+    buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, PALETTE.indexOf(state.accent), (p) => state.accent = p);
+    buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, PALETTE.indexOf(state.bgColor), (p) => state.bgColor = p);
+    buildSwatchRow(document.getElementById('swatchesTextColor'), PALETTE, PALETTE.indexOf(state.textColor), (p) => state.textColor = p);
+    buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, PALETTE.indexOf(state.overlayTextColor), (p) => state.overlayTextColor = p);
+
+    // Reutiliza os próprios botões, para a interface ficar coerente com o estado.
+    const press = (sel) => { const b = document.querySelector(sel); if (b) b.click(); };
+    press('#formatSeg button[data-format="' + d.format + '"]');
+    press('#bgSeg button[data-bg="' + d.bgMode + '"]');
+    press('#styleSeg button[data-style="' + d.boxStyle + '"]');
+    press('#noBoxColorSeg button[data-color="' + d.noBoxColor + '"]');
+    updateBoxStyleControls();
+    press('#posGrid button[data-pos="' + d.position + '"]');
+    renderPageTabs();
+    loadPageIntoFields();
+  } finally {
+    restoringDraft = false;
+  }
+  if (d.pages.some((p) => p.labelText || p.contextText || p.ctaText)) {
+    showToast('Rascunho recuperado. As fotos têm de ser adicionadas de novo.');
+  }
+}
+
+restoreDraft();
+
+loadBrandFonts(currentBrand)
+  .then((problems) => {
+    brandProblems = problems;
+    if (problems.length) showToast('A fonte guardada não carregou; a usar a predefinida.', true);
+    draw();
+  })
+  .catch(() => { showToast('Não foi possível carregar as fontes.', true); draw(); });
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
