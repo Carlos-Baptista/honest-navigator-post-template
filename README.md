@@ -2,7 +2,7 @@
 
 Cria capas de reels e carrosséis fiéis a uma marca, diretamente no telemóvel, sem precisar de saber design. Pensado para a [@sircharlesvonbaptist](https://instagram.com/sircharlesvonbaptist) e para quem a queira usar com a sua própria identidade.
 
-Corre inteiramente no browser: **sem backend, sem conta, sem upload**. As fotos nunca saem do dispositivo.
+Corre inteiramente no browser: **sem backend, sem conta, sem upload**. As fotos e os textos nunca saem do dispositivo. A única exceção é opcional: ao escolher uma fonte do Google Fonts (ver abaixo), a app faz um pedido ao Google.
 
 ## Como usar
 
@@ -11,19 +11,20 @@ Corre inteiramente no browser: **sem backend, sem conta, sem upload**. As fotos 
    - **Overlay**: a tua imagem com uma camada preta (opacidade ajustável) e o texto diretamente por cima
    - **Sólido**: uma cor da marca com uma grelha subtil de pontos
 2. Carrega a foto. No **Carrossel**, usa **Páginas** para juntar slides (cada um com a sua foto e o seu texto) e "Exportar todas as páginas".
-3. Separador **Texto**: Rótulo, Contexto e CTA. Aceitam Enter para quebras de linha à tua escolha.
+3. Separador **Texto**: Rótulo, Contexto e Rodapé. Aceitam Enter para quebras de linha à tua escolha.
 4. Separador **Estilo**: cor e estilo da caixa, ou Branco/Preto se escolheres "Sem caixa" (e, no Overlay, a opacidade).
-5. Separador **Posição**: grelha 3×3, ajuste fino vertical e tamanho do texto (Pequeno / Médio / Grande).
+5. Separador **Posição**: grelha 3×3, ajuste fino vertical, tamanho do texto (Pequeno / Médio / Grande) e alinhamento do rodapé (Esquerda / Centro). Em carrossel, o rodapé à esquerda para antes do número de página.
 6. **Exportar imagem**: no iPhone abre a folha de partilha; escolhe "Guardar Imagem" para ir para a galeria.
 
 No Reel há ainda o botão **Zona segura** (desligado por omissão), que mostra onde a interface do Instagram tapa o conteúdo. É só uma ajuda no ecrã e nunca aparece na imagem exportada.
 
 ## Criar o meu estilo
 
-O botão no topo abre o painel da marca: **2 fontes** (TTF, OTF, WOFF ou WOFF2, até 800 KB cada) e **5 cores** com papel definido (Base, Texto, Acento, Secundária, Clara), com pré-visualização antes de guardar. A Honest Navigator é a predefinição.
+O botão no topo abre o painel da marca: **2 fontes** (carregadas de um ficheiro TTF, OTF, WOFF ou WOFF2 até 800 KB, ou obtidas do Google Fonts) e **5 cores** com papel definido (Base, Texto, Acento, Secundária, Clara), com pré-visualização antes de guardar. A Honest Navigator é a predefinição.
 
 - A marca aplica-se ao **conteúdo exportado**. A interface do editor mantém sempre as mesmas fontes e cores, para continuar legível seja qual for a fonte escolhida.
 - Se uma fonte guardada deixar de carregar, só essa volta à predefinida e a app avisa.
+- **Google Fonts:** o botão "Google" ao lado de cada fonte pede-a ao Google uma única vez (o Google vê o teu IP e o nome da fonte). Escreve o nome tal como aparece no Google Fonts, com maiúsculas e espaços (por exemplo "Playfair Display"). A fonte fica guardada no telemóvel e a app volta a funcionar sem internet. Só é preciso ligação na hora de a obter.
 - "Exportar estilo" / "Importar estilo" guardam e carregam a marca num ficheiro `.json`, útil para a passar a alguém ou para a levar entre o Safari e a app instalada.
 - "Guardar e aplicar" recarrega a app: os textos mantêm-se, mas as fotos têm de ser adicionadas de novo.
 

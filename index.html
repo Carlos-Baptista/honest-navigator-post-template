@@ -182,6 +182,8 @@ html,body{
   color:var(--color-dim);
   margin-bottom:3px;
 }
+.font-upload-row .fu-btns{ display:flex; gap:6px; flex-shrink:0; }
+.font-upload-row > div:first-child{ min-width:0; }
 .font-upload-row button{
   flex-shrink:0;
   background:transparent;
@@ -371,6 +373,63 @@ html,body{
 }
 
 .field input[type=text],
+.gf-row{
+  display:flex;
+  gap:8px;
+  margin:-6px 0 14px;
+}
+.gf-row{ align-items:flex-start; }
+.gf-field{ flex:1; min-width:0; }
+.gf-suggest{
+  border:0.5px solid var(--color-faint);
+  border-top:0;
+  background:var(--color-bg-surface);
+}
+.gf-suggest button{
+  display:block;
+  width:100%;
+  text-align:left;
+  background:transparent;
+  border:0;
+  border-top:0.5px solid var(--color-border);
+  color:var(--color-text-base);
+  font-family:'UIBody',sans-serif;
+  font-size:14px;
+  letter-spacing:0;
+  text-transform:none;
+  padding:10px 12px;
+}
+.gf-row input{
+  width:100%;
+  min-width:0;
+  background:transparent;
+  border:0.5px solid var(--color-faint);
+  color:var(--color-text-strong);
+  font-family:'UIBody',sans-serif;
+  font-weight:300;
+  font-size:15px;
+  padding:9px 12px;
+  border-radius:0;
+}
+.gf-row input::placeholder{ color:var(--color-dim); }
+.gf-row input:focus{ outline:none; border-color:var(--color-orange); }
+.gf-row button{
+  flex-shrink:0;
+  background:transparent;
+  border:0.5px solid var(--color-border-mid);
+  color:var(--color-text-base);
+  font-family:'UIBody',sans-serif;
+  font-size:10px;
+  letter-spacing:var(--tracking-wide);
+  text-transform:uppercase;
+  padding:8px 12px;
+}
+.gf-note{
+  font-size:11px;
+  line-height:1.5;
+  color:var(--color-text-base);
+  margin:-4px 0 14px;
+}
 .field textarea{
   width:100%;
   background:transparent;
@@ -626,6 +685,9 @@ html,body{
   .safe-zone-btn:not(.on):hover{ color:var(--color-text-base); border-color:var(--color-text-mid); }
   .brand-panel .back-link:hover{ color:var(--color-text-strong); }
   .font-upload-row button:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
+  .gf-row button:hover{ color:var(--color-text-strong); border-color:var(--color-text-mid); }
+  .gf-row input:hover{ border-color:var(--color-dim); }
+  .gf-suggest button:hover{ background:rgba(200,186,168,0.08); color:var(--color-text-strong); }
   .swatch:hover{ border-color:var(--color-text-mid); }
   .export-btn:not(:disabled):hover{ box-shadow:0 0 18px rgba(200,96,26,0.3), 0 0 36px rgba(200,96,26,0.1); }
   #exportAllBtn:not(:disabled):hover{ box-shadow:0 0 14px rgba(200,96,26,0.2); background:rgba(200,96,26,0.08); }
@@ -730,17 +792,39 @@ html,body{
         <span class="fu-role">Fonte de destaque (rótulos, títulos)</span>
         <span class="fu-name" id="headingFontName">Honest Navigator (predefinição)</span>
       </div>
-      <button id="uploadHeadingFontBtn">Carregar</button>
+      <div class="fu-btns">
+        <button id="uploadHeadingFontBtn">Carregar</button>
+        <button id="gfHeadingBtn">Google</button>
+      </div>
       <input type="file" id="headingFontInput" accept=".ttf,.otf,.woff,.woff2" style="display:none;">
+    </div>
+    <div class="gf-row section-hidden" id="gfRowHeading">
+            <div class="gf-field">
+        <input type="text" id="gfInputHeading" placeholder="Ex: Playfair Display" maxlength="60" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Nome da fonte de destaque no Google Fonts">
+        <div class="gf-suggest section-hidden" id="gfSuggestHeading"></div>
+      </div>
+      <button id="gfGetHeading">Obter</button>
     </div>
     <div class="font-upload-row">
       <div>
-        <span class="fu-role">Fonte de texto (contexto, CTA)</span>
+        <span class="fu-role">Fonte de texto (contexto, rodapé)</span>
         <span class="fu-name" id="bodyFontName">Honest Navigator (predefinição)</span>
       </div>
-      <button id="uploadBodyFontBtn">Carregar</button>
+      <div class="fu-btns">
+        <button id="uploadBodyFontBtn">Carregar</button>
+        <button id="gfBodyBtn">Google</button>
+      </div>
       <input type="file" id="bodyFontInput" accept=".ttf,.otf,.woff,.woff2" style="display:none;">
     </div>
+    <div class="gf-row section-hidden" id="gfRowBody">
+            <div class="gf-field">
+        <input type="text" id="gfInputBody" placeholder="Ex: Inter" maxlength="60" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Nome da fonte de texto no Google Fonts">
+        <div class="gf-suggest section-hidden" id="gfSuggestBody"></div>
+      </div>
+      <button id="gfGetBody">Obter</button>
+    </div>
+    <p class="gf-note">O botão Google pede a fonte ao Google Fonts, uma só vez: o Google vê o teu IP e o nome da fonte. Depois fica guardada no telemóvel. As tuas fotos e textos nunca saem daqui.</p>
+
 
     <div class="section-label">Cores</div>
     <div class="color-row">
@@ -857,7 +941,7 @@ html,body{
         <textarea id="contextText" rows="2" placeholder="Ex: não é cansaço físico, é mental" maxlength="200"></textarea>
       </div>
       <div class="field" style="margin-bottom:0;">
-        <label>CTA (opcional, linha final)</label>
+        <label>Rodapé (opcional, linha final)</label>
         <textarea id="ctaText" rows="2" placeholder="Ex: manda isto a quem também nunca desliga" maxlength="160"></textarea>
       </div>
     </div>
@@ -933,12 +1017,19 @@ html,body{
         <label>Ajuste fino vertical</label>
         <input type="range" id="offsetSlider" min="-300" max="300" value="0">
       </div>
-      <div class="field" style="margin-bottom:0;">
+      <div class="field">
         <label>Tamanho do texto</label>
         <div class="segmented" id="textScaleSeg">
           <button data-scale="0.8">Pequeno</button>
           <button data-scale="1" class="active">Médio</button>
           <button data-scale="1.25">Grande</button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Alinhamento do rodapé</label>
+        <div class="segmented" id="ctaAlignSeg">
+          <button data-cta="left">Esquerda</button>
+          <button data-cta="center" class="active">Centro</button>
         </div>
       </div>
     </div>
@@ -1096,6 +1187,7 @@ let state = {
   noBoxColor: 'white',        // com 'none': texto só branco ou só preto
   position: 'top-center',
   offsetY: 0,
+  ctaAlign: 'center',         // 'left' | 'center'
   textureOn: true,
 };
 
@@ -1172,6 +1264,7 @@ function sanitizeDraft(d, paletteNames) {
     noBoxColor: ['white', 'black'].includes(d.noBoxColor) ? d.noBoxColor : 'white',
     position: (typeof d.position === 'string' && POS_RE.test(d.position)) ? d.position : 'top-center',
     offsetY: Math.round(num(d.offsetY, -300, 300, 0)),
+    ctaAlign: ['left', 'center'].includes(d.ctaAlign) ? d.ctaAlign : 'center',
     overlayOpacity: Math.round(num(d.overlayOpacity, 0, 90, 45)),
     textureOn: typeof d.textureOn === 'boolean' ? d.textureOn : true,
     accent: name(d.accent, 'acento'),
@@ -1179,6 +1272,36 @@ function sanitizeDraft(d, paletteNames) {
     textColor: name(d.textColor, 'base'),
     overlayTextColor: name(d.overlayTextColor, 'texto'),
   };
+}
+
+// Mantém o bloco de texto inteiro dentro do canvas, mesmo com o ajuste fino no máximo.
+// Se o bloco for mais alto do que o espaço disponível, ganha a margem de cima.
+function clampBlockY(y, blockH, H, margin) {
+  return Math.max(margin, Math.min(H - margin - blockH, y));
+}
+
+/* ---------- Google Fonts (opt-in, só ao criar o estilo) ---------- */
+const GF_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9 ]{1,58}$/;
+// Tentativas por ordem: eixo de peso variável (cobre 600 e 400), depois um só peso estático.
+const GF_ATTEMPTS = { heading: ['400..700', '700', ''], body: ['400..700', ''] };
+
+function googleFontCssUrl(name, axis) {
+  const fam = name.trim().replace(/\s+/g, '+');
+  return 'https://fonts.googleapis.com/css2?family=' + fam + (axis ? ':wght@' + axis : '') + '&display=swap';
+}
+
+// O CSS do Google traz um @font-face por subconjunto (latin, latin-ext, cirílico…).
+// Escolhe o que cobre U+0000-00FF, que inclui o português.
+function pickLatinFontUrl(css) {
+  if (typeof css !== 'string') return null;
+  const blocks = css.split('@font-face').slice(1);
+  for (const b of blocks) {
+    const range = /unicode-range:\s*([^;]+);/.exec(b);
+    if (range && !/U\+0000-00FF/i.test(range[1])) continue;
+    const m = /url\(\s*['"]?(https:\/\/fonts\.gstatic\.com\/[^)'"\s]+)['"]?\s*\)/.exec(b);
+    if (m) return m[1];
+  }
+  return null;
 }
 /*PURE:APP:END*/
 
@@ -1239,7 +1362,7 @@ function serializeDraft() {
   return {
     version: 1,
     format: state.format, bgMode: state.bgMode, boxStyle: state.boxStyle, noBoxColor: state.noBoxColor,
-    position: state.position, offsetY: state.offsetY, textureOn: state.textureOn,
+    position: state.position, offsetY: state.offsetY, ctaAlign: state.ctaAlign, textureOn: state.textureOn,
     overlayOpacity: state.overlayOpacity,
     accent: state.accent.name, bgColor: state.bgColor.name,
     textColor: state.textColor.name, overlayTextColor: state.overlayTextColor.name,
@@ -1450,6 +1573,15 @@ offsetSlider.addEventListener('input', (e) => {
   draw();
 });
 
+document.getElementById('ctaAlignSeg').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#ctaAlignSeg button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.ctaAlign = btn.dataset.cta;
+  draw();
+});
+
 textScaleSeg.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
@@ -1496,12 +1628,13 @@ fileInput.addEventListener('change', async (e) => {
 document.getElementById('resetLink').addEventListener('click', () => {
   state.pages.forEach((p) => releaseImage(p.img));
   try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
-  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', textScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', noBoxColor:'white', position:'top-center', offsetY:0, textureOn:true};
+  state = {pages:[{img:null, labelText:'', contextText:'', ctaText:'', textScale:1}], currentPage:0, accent:PALETTE[0], bgColor:PALETTE[4], textColor:PALETTE[3], overlayTextColor:PALETTE[4], overlayOpacity:45, format:'reel', bgMode:'photo', boxStyle:'solid', noBoxColor:'white', position:'top-center', offsetY:0, ctaAlign:'center', textureOn:true};
   document.getElementById('labelText').value = '';
   document.getElementById('contextText').value = '';
   document.getElementById('ctaText').value = '';
   document.getElementById('textureToggle').checked = true;
   offsetSlider.value = 0;
+  document.querySelectorAll('#ctaAlignSeg button').forEach((b) => b.classList.toggle('active', b.dataset.cta === 'center'));
   document.querySelectorAll('#textScaleSeg button').forEach((b) => b.classList.toggle('active', b.dataset.scale === '1'));
   overlayOpacitySlider.value = 45;
   buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, 0, c => state.accent = c);
@@ -1711,7 +1844,7 @@ function draw() {
     const boxX = hAlign === 'left' ? paddingX
                 : hAlign === 'right' ? W - paddingX - boxWidth
                 : (W - boxWidth) / 2;
-    const boxY = baseY() + state.offsetY;
+    const boxY = clampBlockY(baseY() + state.offsetY, boxHeight, H, paddingX);
     const boxCenterX = boxX + boxWidth / 2;
 
     if (page.labelText || page.contextText) {
@@ -1759,7 +1892,7 @@ function draw() {
       }
     }
   } else {
-    const startY = baseY() + state.offsetY;
+    const startY = clampBlockY(baseY() + state.offsetY, blockHeight, H, paddingX);
     const { h: hAlign } = positionParts();
     const directColor = state.bgMode === 'overlay' ? state.overlayTextColor.hex
                       : state.bgMode === 'photo' ? noBoxHex()
@@ -1793,7 +1926,12 @@ function draw() {
   if (page.ctaText) {
     ctx.save();
     ctx.font = ctaFont;
-    ctx.textAlign = 'center';
+    const ctaLeft = state.ctaAlign === 'left';
+    const pageNumVisible = state.format === 'carousel' && state.pages.length > 1;
+    // À esquerda, em carrossel, a linha para antes do número de página (canto inferior direito).
+    const ctaMaxW = (ctaLeft && pageNumVisible) ? Math.round(W * 0.78) - paddingX : W - paddingX*2;
+    const ctaX = ctaLeft ? paddingX : W/2;
+    ctx.textAlign = ctaLeft ? 'left' : 'center';
     const ctaY = H - H*0.062;
     const ctaColor = state.bgMode === 'solid' ? state.textColor.hex
                     : state.bgMode === 'overlay' ? state.overlayTextColor.hex
@@ -1801,10 +1939,11 @@ function draw() {
                     : '#EDE5D8';
     ctx.fillStyle = ctaColor;
     ctx.globalAlpha = 0.7;
-    const ctaLines = wrapText(page.ctaText, W - paddingX*2, ctaFont);
-    let cy = ctaY;
+    const ctaLines = wrapText(page.ctaText, ctaMaxW, ctaFont);
+    // A última linha fica sempre na mesma posição; as linhas extra sobem, para nunca saírem do canvas.
+    let cy = ctaY - (ctaLines.length - 1) * ctaFontSize * 1.4;
     ctaLines.forEach(line => {
-      ctx.fillText(line, W/2, cy);
+      ctx.fillText(line, ctaX, cy);
       cy += ctaFontSize * 1.4;
     });
     ctx.restore();
@@ -1852,13 +1991,26 @@ function canvasToBlob() {
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
 }
 
+// A folha de partilha só é boa opção em ecrãs de toque. Em computador, alguns browsers
+// (Chrome, Edge, Brave) anunciam canShare mas abrem um diálogo do sistema que passa despercebido.
+function preferNativeShare(files) {
+  if (!navigator.canShare) return false;
+  let touch = false;
+  try { touch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches); } catch (e) {}
+  if (!touch) return false;
+  try { return navigator.canShare({ files }); } catch (e) { return false; }
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.download = filename;
   link.href = url;
+  link.style.display = 'none';
+  document.body.appendChild(link);   // alguns browsers só aceitam o clique com o link no documento
   link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 exportBtn.addEventListener('click', async () => {
@@ -1868,9 +2020,10 @@ exportBtn.addEventListener('click', async () => {
     : '';
   const filename = `capa-honest-navigator${suffix}-${ts}.png`;
   const blob = await canvasToBlob();
+  if (!blob) { showToast('Não foi possível gerar a imagem. Tenta outra vez.', true); return; }
   const file = new File([blob], filename, { type: 'image/png' });
 
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  if (preferNativeShare([file])) {
     try {
       await navigator.share({ files: [file] });
       return;
@@ -1890,13 +2043,14 @@ exportAllBtn.addEventListener('click', async () => {
     state.currentPage = i;
     draw();
     const blob = await canvasToBlob();
+    if (!blob) { state.currentPage = originalPage; draw(); showToast('Não foi possível gerar a imagem. Tenta outra vez.', true); return; }
     const filename = `capa-honest-navigator-${String(i+1).padStart(2,'0')}-${ts}.png`;
     files.push(new File([blob], filename, { type: 'image/png' }));
   }
   state.currentPage = originalPage;
   draw();
 
-  if (navigator.canShare && navigator.canShare({ files })) {
+  if (preferNativeShare(files)) {
     try {
       await navigator.share({ files });
       return;
@@ -2058,6 +2212,92 @@ async function onFontPicked(role, input) {
     showToast('Esse ficheiro não é uma fonte válida (usa TTF, OTF, WOFF ou WOFF2).', true);
   }
 }
+/* Google Fonts: pedido único, só quando a pessoa carrega em Obter. A fonte fica guardada
+   como data URI, tal como uma fonte carregada de um ficheiro, e a app volta a funcionar offline. */
+async function gfFetch(url) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 12000);
+  try { return await fetch(url, { signal: ctl.signal }); }
+  catch (e) { throw Object.assign(new Error('network'), { code: 'network' }); }
+  finally { clearTimeout(timer); }
+}
+
+async function fetchGoogleFont(role, name) {
+  for (const axis of GF_ATTEMPTS[role]) {
+    const res = await gfFetch(googleFontCssUrl(name, axis));
+    if (!res.ok) continue;                                  // 400: não existe com este eixo
+    const fontUrl = pickLatinFontUrl(await res.text());
+    if (!fontUrl) continue;
+    const fr = await gfFetch(fontUrl);
+    if (!fr.ok) throw Object.assign(new Error('network'), { code: 'network' });
+    const blob = await fr.blob();
+    if (blob.size > MAX_FONT_BYTES) throw Object.assign(new Error('size'), { code: 'size' });
+    return await fileToDataUrl(blob);
+  }
+  throw Object.assign(new Error('notfound'), { code: 'notfound' });
+}
+
+async function onGoogleFont(role) {
+  const cap = role === 'heading' ? 'Heading' : 'Body';
+  const name = document.getElementById('gfInput' + cap).value.replace(/\s+/g, ' ').trim();
+  if (!GF_NAME_RE.test(name)) {
+    showToast('Escreve o nome da fonte como aparece no Google Fonts (só letras, números e espaços).', true);
+    return;
+  }
+  const btn = document.getElementById('gfGet' + cap);
+  btn.disabled = true; btn.textContent = 'A obter…';
+  try {
+    const url = await fetchGoogleFont(role, name);
+    await setPreviewFont(role, url);                        // rejeita se não for uma fonte válida
+    pendingBrand[role + 'FontUrl'] = url;
+    pendingBrand[role + 'FontName'] = name + ' (Google Fonts)';
+    document.getElementById(role + 'FontName').textContent = pendingBrand[role + 'FontName'];
+    updateBrandPreview();
+    document.getElementById('gfRow' + cap).classList.add('section-hidden');
+    showToast(name + ' pronta. Carrega em Guardar e aplicar para a usar.');
+  } catch (err) {
+    const code = err && err.code;
+    if (code === 'notfound') showToast('Não encontrei "' + name + '" no Google Fonts. Confere o nome, incluindo maiúsculas e espaços.', true);
+    else if (code === 'size') showToast('Essa fonte é demasiado grande (máx. 800 KB). Tenta outra.', true);
+    else if (code === 'network') showToast('Sem ligação ao Google Fonts. Tenta outra vez com internet.', true);
+    else showToast('Não foi possível usar essa fonte.', true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Obter';
+  }
+}
+const GF_SUGGEST = ["Playfair Display", "Lora", "Merriweather", "DM Serif Display", "Cormorant Garamond", "EB Garamond", "Libre Baskerville", "Fraunces", "Crimson Pro", "Spectral", "Abril Fatface", "Bitter", "Bebas Neue", "Oswald", "Anton", "Archivo Black", "Montserrat", "Poppins", "Inter", "Roboto", "Open Sans", "Lato", "Nunito", "Work Sans", "DM Sans", "Manrope", "Raleway", "Space Grotesk", "Source Sans 3", "IBM Plex Sans", "IBM Plex Serif", "Barlow", "Rubik", "Karla", "Josefin Sans", "Syne", "Outfit", "Sora", "Quicksand", "Caveat"];
+// Lista de sugestões em linha (acompanha o scroll da página, ao contrário do datalist nativo).
+function renderGfSuggest(cap) {
+  const box = document.getElementById('gfSuggest' + cap);
+  const q = document.getElementById('gfInput' + cap).value.trim().toLowerCase();
+  const hits = GF_SUGGEST.filter((n) => n.toLowerCase().includes(q) && n.toLowerCase() !== q).slice(0, 6);
+  box.textContent = '';
+  hits.forEach((n) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = n;
+    b.addEventListener('click', () => {
+      document.getElementById('gfInput' + cap).value = n;
+      box.classList.add('section-hidden');
+    });
+    box.appendChild(b);
+  });
+  box.classList.toggle('section-hidden', hits.length === 0);
+}
+
+[['heading', 'Heading'], ['body', 'Body']].forEach(([role, cap]) => {
+  document.getElementById('gf' + cap + 'Btn').addEventListener('click', () => {
+    const row = document.getElementById('gfRow' + cap);
+    row.classList.toggle('section-hidden');
+    document.getElementById('gfSuggest' + cap).classList.add('section-hidden');
+    if (!row.classList.contains('section-hidden')) document.getElementById('gfInput' + cap).focus();
+  });
+  document.getElementById('gfInput' + cap).addEventListener('input', () => renderGfSuggest(cap));
+  document.getElementById('gfInput' + cap).addEventListener('focus', () => renderGfSuggest(cap));
+  document.getElementById('gfGet' + cap).addEventListener('click', () => { document.getElementById('gfSuggest' + cap).classList.add('section-hidden'); onGoogleFont(role); });
+  document.getElementById('gfInput' + cap).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('gfSuggest' + cap).classList.add('section-hidden'); onGoogleFont(role); } });
+});
+
 document.getElementById('headingFontInput').addEventListener('change', (e) => onFontPicked('heading', e.target));
 document.getElementById('bodyFontInput').addEventListener('change', (e) => onFontPicked('body', e.target));
 
@@ -2100,7 +2340,7 @@ document.getElementById('resetBrandBtn').addEventListener('click', () => {
 document.getElementById('exportBrandBtn').addEventListener('click', async () => {
   const payload = JSON.stringify({ type: 'editor-capas-estilo', version: 1, brand: sanitizeBrand(pendingBrand) });
   const file = new File([payload], 'o-meu-estilo.json', { type: 'text/plain' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  if (preferNativeShare([file])) {
     try { await navigator.share({ files: [file] }); return; }
     catch (err) { if (err && err.name === 'AbortError') return; }
   }
@@ -2181,6 +2421,7 @@ function restoreDraft() {
     press('#noBoxColorSeg button[data-color="' + d.noBoxColor + '"]');
     updateBoxStyleControls();
     press('#posGrid button[data-pos="' + d.position + '"]');
+    press('#ctaAlignSeg button[data-cta="' + d.ctaAlign + '"]');
     renderPageTabs();
     loadPageIntoFields();
   } finally {

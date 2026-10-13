@@ -1,6 +1,6 @@
 // Sobe este número sempre que fizeres uma alteração ao ficheiro,
 // para forçar o telemóvel a ir buscar a versão nova em vez de usar a antiga em cache.
-const CACHE_VERSION = 'editor-capas-v13';
+const CACHE_VERSION = 'editor-capas-v16';
 
 const ASSETS = [
   './',
@@ -33,6 +33,8 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Pedidos a outros domínios (Google Fonts) passam direto pela rede, sem cache do service worker.
+  if (new URL(event.request.url).origin !== self.location.origin) return;
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const network = fetch(event.request)
