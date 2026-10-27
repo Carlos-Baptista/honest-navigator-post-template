@@ -18,9 +18,9 @@
 <link rel="icon" type="image/png" href="icon-180.png">
 
 <style>
-/* A interface usa sempre as fontes da Honest Navigator (UIHeading/UIBody), para continuar
-   legível seja qual for a fonte escolhida. A marca de cada pessoa (BrandHeading/BrandBody,
-   carregadas pelo script) aplica-se só ao conteúdo exportado e à pré-visualização. */
+/* The interface always uses the Honest Navigator fonts (UIHeading/UIBody), so it stays
+   legible whatever font the user picks. Each person's brand (BrandHeading/BrandBody,
+   loaded by the script) only applies to the exported content and the preview. */
 @font-face {
   font-family: 'UIHeading';
   src: url('awesome-serif.ttf') format('truetype-variations');
@@ -287,12 +287,12 @@ html,body{
   line-height:1.6;
 }
 
-/* Zona segura do Instagram (Reels), forma medida a partir da referência fornecida:
-   coluna de ícones à direita + legenda/rodapé em baixo, cabeçalho no topo.
-   Preenchimento translúcido (não só linhas) para se manter visível por cima de
-   fotos. Imagem SVG esticada a 100% 100%, não elementos posicionados por
-   percentagem — o Safari iOS por vezes calcula mal top/bottom em percentagem
-   dentro de contentores com aspect-ratio; background-size não sofre desse bug. */
+/* Instagram safe zone (Reels), shape measured from the reference provided:
+   column of icons on the right + caption/footer at the bottom, header at the top.
+   Translucent fill (not just lines) so it stays visible over photos. An SVG image
+   stretched to 100% 100%, not elements positioned by percentage: Safari iOS sometimes
+   miscalculates percentage top/bottom inside containers with aspect-ratio;
+   background-size does not suffer from that bug. */
 .safe-zone-overlay{
   position:absolute;
   inset:0;
@@ -332,6 +332,27 @@ html,body{
   color:var(--color-dim);
   margin-top:10px;
   padding:0 2px;
+}
+
+.legibility{ margin-top:8px; padding:0 2px; }
+.legibility-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:10px;
+  letter-spacing:var(--tracking-wide);
+  text-transform:uppercase;
+  color:var(--color-text-base);
+}
+.leg-mark{ width:8px; height:8px; flex:none; background:var(--color-sage); }
+.legibility-row[data-level="fair"] .leg-mark{ background:var(--color-amber); }
+.legibility-row[data-level="poor"] .leg-mark{ background:var(--color-orange); }
+.leg-tip{
+  margin:4px 0 0 16px;
+  font-size:11px;
+  font-weight:300;
+  line-height:1.4;
+  color:var(--color-text-base);
 }
 
 .safe-zone-btn{
@@ -569,8 +590,8 @@ html,body{
   grid-template-rows:repeat(3, 44px);
   position:relative;
 }
-/* Moldura desenhada por cima das células: bordas de 0.5px desaparecem em
-   alguns lados no Safari iOS; um box-shadow inset de 1px não sofre disso. */
+/* Frame drawn on top of the cells: 0.5px borders disappear on some
+   sides in Safari iOS; a 1px inset box-shadow does not suffer from that. */
 .pos-grid::after{
   content:'';
   position:absolute;
@@ -914,6 +935,13 @@ html,body{
       <span id="dimsHint">1080 × 1920</span>
       <span id="statusHint">à espera de imagem</span>
     </div>
+    <div class="legibility section-hidden" id="legibility" role="status" aria-live="polite">
+      <div class="legibility-row" id="legibilityRow" data-level="good">
+        <span class="leg-mark" aria-hidden="true"></span>
+        <span id="legText"></span>
+      </div>
+      <p class="leg-tip section-hidden" id="legTip"></p>
+    </div>
     <button class="safe-zone-btn section-hidden" id="safeZoneBtn">Zona segura: ligada</button>
   </div>
 
@@ -926,12 +954,12 @@ html,body{
     </div>
 
     <div class="tab-bar" id="tabBar">
-      <button data-tab="texto" class="active">Texto</button>
-      <button data-tab="estilo">Estilo</button>
-      <button data-tab="posicao">Posição</button>
+      <button data-tab="text" class="active">Texto</button>
+      <button data-tab="style">Estilo</button>
+      <button data-tab="position">Posição</button>
     </div>
 
-    <div class="tab-panel" id="tabTexto">
+    <div class="tab-panel" id="tabText">
       <div class="field">
         <label>Rótulo (a frase principal)</label>
         <textarea id="labelText" rows="2" placeholder="Ex: Quem Nunca Desliga&#10;(Enter para quebra de linha própria)" maxlength="140"></textarea>
@@ -946,7 +974,7 @@ html,body{
       </div>
     </div>
 
-    <div class="tab-panel section-hidden" id="tabEstilo">
+    <div class="tab-panel section-hidden" id="tabStyle">
       <div id="photoOnlyControls">
         <div class="field" id="accentField">
           <label>Cor do rótulo</label>
@@ -956,16 +984,12 @@ html,body{
           <label>Estilo da caixa</label>
           <div class="segmented" id="styleSeg">
             <button data-style="solid" class="active">Sólido</button>
-            <button data-style="paper">Papel</button>
             <button data-style="none">Sem caixa</button>
           </div>
         </div>
         <div class="field section-hidden" id="noBoxColorField" style="margin:20px 0 0;">
-          <label>Cor do texto (garante o contraste)</label>
-          <div class="segmented" id="noBoxColorSeg">
-            <button data-color="white" class="active">Branco</button>
-            <button data-color="black">Preto</button>
-          </div>
+          <label>Cor do texto</label>
+          <div class="swatches" id="swatchesNoBox"></div>
         </div>
       </div>
 
@@ -998,7 +1022,7 @@ html,body{
       </div>
     </div>
 
-    <div class="tab-panel section-hidden" id="tabPosicao">
+    <div class="tab-panel section-hidden" id="tabPosition">
       <div class="field">
         <label>Posição</label>
         <div class="pos-grid" id="posGrid">
@@ -1051,6 +1075,12 @@ const emptyState = document.getElementById('emptyState');
 const exportBtn = document.getElementById('exportBtn');
 const statusHint = document.getElementById('statusHint');
 const dimsHint = document.getElementById('dimsHint');
+const legBox = document.getElementById('legibility');
+const legRow = document.getElementById('legibilityRow');
+const legText = document.getElementById('legText');
+const legTip = document.getElementById('legTip');
+let legTimer = null;
+let legCanvas = null;
 const canvasFrame = document.getElementById('canvasFrame');
 const safeZoneOverlay = document.getElementById('safeZoneOverlay');
 const safeZoneBtn = document.getElementById('safeZoneBtn');
@@ -1082,10 +1112,10 @@ const DEFAULT_BRAND = {
 /*PURE:BRAND:START*/
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 const BRAND_VERSION = 1;
-const MAX_FONT_BYTES = 800 * 1024;          // por fonte; duas cabem folgadamente no localStorage
-const MAX_FONT_URL_CHARS = 1500000;         // data URI de uma fonte de 800 KB ronda 1,1 M de caracteres
+const MAX_FONT_BYTES = 800 * 1024;          // per font; two fit comfortably in localStorage
+const MAX_FONT_URL_CHARS = 1500000;         // the data URI of an 800 KB font is around 1.1 M characters
 
-// Aceita só o que reconhece; tudo o resto volta ao valor predefinido.
+// Accepts only what it recognises; everything else falls back to the default value.
 function sanitizeBrand(raw) {
   if (!raw || typeof raw !== 'object' || !raw.colors || typeof raw.colors !== 'object') return null;
   const d = DEFAULT_BRAND;
@@ -1128,24 +1158,24 @@ function luminance(hex) {
 
 function buildPaletteFromBrand(brand) {
   const roles = [
-    { name: 'acento', hex: brand.colors.accent },
-    { name: 'secundaria', hex: brand.colors.secondary },
-    { name: 'clara', hex: brand.colors.light },
+    { name: 'accent', hex: brand.colors.accent },
+    { name: 'secondary', hex: brand.colors.secondary },
+    { name: 'light', hex: brand.colors.light },
     { name: 'base', hex: brand.colors.base },
-    { name: 'texto', hex: brand.colors.text },
+    { name: 'text', hex: brand.colors.text },
   ];
   return roles.map(r => ({ name: r.name, hex: r.hex, text: luminance(r.hex) > 0.5 ? '#1C1B17' : '#EDE5D8' }));
 }
 
-let brandProblems = [];   // 'heading' / 'body' quando a fonte guardada não carregou
+let brandProblems = [];   // 'heading' / 'body' when the saved font failed to load
 
 async function loadFontFace(family, url) {
   const face = new FontFace(family, `url("${url}")`, { weight: '100 900' });
-  await face.load();   // rejeita se o ficheiro não for uma fonte válida
+  await face.load();   // rejects if the file is not a valid font
   return face;
 }
 
-// Cada fonte é tratada à parte: se a guardada falhar, só essa volta à predefinida.
+// Each font is handled separately: if the saved one fails, only that one falls back to the default.
 async function loadBrandFonts(brand) {
   const problems = [];
   const one = async (family, url, fallbackUrl, role) => {
@@ -1166,6 +1196,8 @@ async function loadBrandFonts(brand) {
 }
 
 const PALETTE = buildPaletteFromBrand(currentBrand);
+// Choices for the text colour when there is no box: white, black, then the brand palette.
+const NOBOX_CHOICES = [{ name: 'white', hex: '#FFFFFF' }, { name: 'black', hex: '#000000' }, ...PALETTE];
 
 const FORMATS = {
   reel:     {w:1080, h:1920, label:'1080 × 1920'},
@@ -1183,8 +1215,8 @@ let state = {
   overlayOpacity: 45,
   format: 'reel',
   bgMode: 'photo',
-  boxStyle: 'solid',          // 'solid' | 'paper' | 'none'
-  noBoxColor: 'white',        // com 'none': texto só branco ou só preto
+  boxStyle: 'solid',          // 'solid' | 'none'
+  noBoxColor: 'white',        // with 'none': 'white' | 'black' | a PALETTE role name
   position: 'top-center',
   offsetY: 0,
   ctaAlign: 'center',         // 'left' | 'center'
@@ -1193,10 +1225,14 @@ let state = {
 
 function cp() { return state.pages[state.currentPage]; }
 
-// Cor do texto quando a foto não tem caixa: só branco ou só preto, para garantir o contraste.
-function noBoxHex() { return state.noBoxColor === 'black' ? '#000000' : '#FFFFFF'; }
+// Text colour when the photo has no box: white, black or any brand colour. The legibility meter says how it reads.
+function noBoxHex() {
+  if (state.noBoxColor === 'black') return '#000000';
+  const p = PALETTE.find((c) => c.name === state.noBoxColor);
+  return p ? p.hex : '#FFFFFF';
+}
 
-/* ---------- Aviso curto (substitui alert) ---------- */
+/* ---------- Short notice (replaces alert) ---------- */
 let toastTimer = null;
 function showToast(msg, isError) {
   const t = document.getElementById('toast');
@@ -1208,15 +1244,15 @@ function showToast(msg, isError) {
 }
 
 /*PURE:APP:START*/
-/* ---------- Imagens: plano de redução ---------- */
-// O maior formato (Reel, 1080x1920) define até onde a foto precisa de resolução.
+/* ---------- Images: downscale plan ---------- */
+// The largest format (Reel, 1080x1920) sets how much resolution a photo needs.
 const IMG_TARGET_W = 1080;
 const IMG_TARGET_H = 1920;
-// O iOS recusa canvas acima de ~16,7 M de pixels.
+// iOS refuses canvases above ~16.7 M pixels.
 const MAX_CANVAS_AREA = 16000000;
 
-// Devolve o tamanho final (que cobre o Reel a 1x, nunca ampliando) e os passos
-// intermédios, para reduzir por etapas sem criar canvas acima do limite do iOS.
+// Returns the final size (covers the Reel at 1x, never upscaling) and the intermediate
+// steps, so the image is reduced in stages without creating a canvas above the iOS limit.
 function planDownscale(w, h) {
   const s = Math.min(1, Math.max(IMG_TARGET_W / w, IMG_TARGET_H / h));
   const tw = Math.max(1, Math.round(w * s));
@@ -1226,7 +1262,7 @@ function planDownscale(w, h) {
   for (let guard = 0; guard < 12; guard++) {
     let f = 0.5;
     if (cw * f * ch * f > MAX_CANVAS_AREA) f = Math.sqrt(MAX_CANVAS_AREA / (cw * ch));
-    // floor, não round: garante que a área nunca passa o limite e que o passo realmente encolhe
+    // floor, not round: guarantees the area never exceeds the limit and that the step really shrinks
     const nw = Math.floor(cw * f), nh = Math.floor(ch * f);
     if (nw < tw || nh < th || (nw >= cw && nh >= ch)) break;
     steps.push({ w: nw, h: nh });
@@ -1235,11 +1271,13 @@ function planDownscale(w, h) {
   return { tw, th, steps };
 }
 
-/* ---------- Rascunho: validação ---------- */
+/* ---------- Draft: validation ---------- */
 const DRAFT_KEY = 'editorCapasDraft';
 const POS_RE = /^(top|mid|bottom)-(left|center|right)$/;
 
-// Só texto e definições — as fotos nunca são guardadas.
+const LEGACY_COLOR_NAMES = { acento: 'accent', secundaria: 'secondary', clara: 'light', texto: 'text', base: 'base' };
+
+// Text and settings only; photos are never saved.
 function sanitizeDraft(d, paletteNames) {
   if (!d || typeof d !== 'object' || d.version !== 1 || !Array.isArray(d.pages) || d.pages.length === 0) return null;
   const clip = (s, n) => typeof s === 'string' ? s.slice(0, n) : '';
@@ -1253,36 +1291,42 @@ function sanitizeDraft(d, paletteNames) {
       textScale: scales.includes(p.textScale) ? p.textScale : 1,
     };
   });
-  const name = (n, fb) => paletteNames.includes(n) ? n : fb;
+  // Drafts saved before the English rename hold the old Portuguese role names.
+  const name = (n, fb) => {
+    if (typeof n === 'string' && Object.prototype.hasOwnProperty.call(LEGACY_COLOR_NAMES, n)) n = LEGACY_COLOR_NAMES[n];
+    return paletteNames.includes(n) ? n : fb;
+  };
   const num = (v, min, max, fb) => (typeof v === 'number' && isFinite(v)) ? Math.min(max, Math.max(min, v)) : fb;
   return {
     pages,
     currentPage: (Number.isInteger(d.currentPage) && d.currentPage >= 0 && d.currentPage < pages.length) ? d.currentPage : 0,
     format: Object.prototype.hasOwnProperty.call(FORMATS, d.format) ? d.format : 'reel',
     bgMode: ['photo', 'overlay', 'solid'].includes(d.bgMode) ? d.bgMode : 'photo',
-    boxStyle: ['solid', 'paper', 'none'].includes(d.boxStyle) ? d.boxStyle : 'solid',
-    noBoxColor: ['white', 'black'].includes(d.noBoxColor) ? d.noBoxColor : 'white',
+    // 'paper' (a removed style) and anything unknown fall back to 'solid'.
+    boxStyle: ['solid', 'none'].includes(d.boxStyle) ? d.boxStyle : 'solid',
+    // 'white', 'black' or the name of a palette role.
+    noBoxColor: (d.noBoxColor === 'white' || d.noBoxColor === 'black') ? d.noBoxColor : name(d.noBoxColor, 'white'),
     position: (typeof d.position === 'string' && POS_RE.test(d.position)) ? d.position : 'top-center',
     offsetY: Math.round(num(d.offsetY, -300, 300, 0)),
     ctaAlign: ['left', 'center'].includes(d.ctaAlign) ? d.ctaAlign : 'center',
     overlayOpacity: Math.round(num(d.overlayOpacity, 0, 90, 45)),
     textureOn: typeof d.textureOn === 'boolean' ? d.textureOn : true,
-    accent: name(d.accent, 'acento'),
-    bgColor: name(d.bgColor, 'texto'),
+    accent: name(d.accent, 'accent'),
+    bgColor: name(d.bgColor, 'text'),
     textColor: name(d.textColor, 'base'),
-    overlayTextColor: name(d.overlayTextColor, 'texto'),
+    overlayTextColor: name(d.overlayTextColor, 'text'),
   };
 }
 
-// Mantém o bloco de texto inteiro dentro do canvas, mesmo com o ajuste fino no máximo.
-// Se o bloco for mais alto do que o espaço disponível, ganha a margem de cima.
+// Keeps the whole text block inside the canvas, even with the fine adjustment at its maximum.
+// If the block is taller than the available space, the top margin wins.
 function clampBlockY(y, blockH, H, margin) {
   return Math.max(margin, Math.min(H - margin - blockH, y));
 }
 
-/* ---------- Google Fonts (opt-in, só ao criar o estilo) ---------- */
+/* ---------- Google Fonts (opt-in, only when creating the style) ---------- */
 const GF_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9 ]{1,58}$/;
-// Tentativas por ordem: eixo de peso variável (cobre 600 e 400), depois um só peso estático.
+// Attempts in order: variable weight axis (covers 600 and 400), then a single static weight.
 const GF_ATTEMPTS = { heading: ['400..700', '700', ''], body: ['400..700', ''] };
 
 function googleFontCssUrl(name, axis) {
@@ -1290,8 +1334,8 @@ function googleFontCssUrl(name, axis) {
   return 'https://fonts.googleapis.com/css2?family=' + fam + (axis ? ':wght@' + axis : '') + '&display=swap';
 }
 
-// O CSS do Google traz um @font-face por subconjunto (latin, latin-ext, cirílico…).
-// Escolhe o que cobre U+0000-00FF, que inclui o português.
+// Google's CSS has one @font-face per subset (latin, latin-ext, cyrillic…).
+// Picks the one that covers U+0000-00FF, which includes Portuguese.
 function pickLatinFontUrl(css) {
   if (typeof css !== 'string') return null;
   const blocks = css.split('@font-face').slice(1);
@@ -1303,11 +1347,99 @@ function pickLatinFontUrl(css) {
   }
   return null;
 }
+
+/* ---------- Text legibility over the photo ---------- */
+// Minimum contrast (WCAG): 3:1 for large text (the label) and 4.5:1 for small text (context and footer).
+const LEG_MIN_LABEL = 3;
+const LEG_MIN_SMALL = 4.5;
+// Share of the text area below the minimum: up to 10% = good, up to 35% = fair, above = poor.
+// Starting values, to be calibrated with real photos.
+const LEG_GOOD_MAX = 0.10;
+const LEG_FAIR_MAX = 0.35;
+// The analysis runs on a copy at 1/6 of the size: enough to measure, and cheap.
+const LEG_SCALE = 1 / 6;
+
+const SRGB_LIN = (() => {
+  const t = new Float64Array(256);
+  for (let i = 0; i < 256; i++) {
+    const s = i / 255;
+    t[i] = s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  }
+  return t;
+})();
+
+function relLuminance(r, g, b) {
+  const q = (v) => SRGB_LIN[Math.min(255, Math.max(0, Math.round(v)))];
+  return 0.2126 * q(r) + 0.7152 * q(g) + 0.0722 * q(b);
+}
+
+function contrastRatio(l1, l2) {
+  const hi = Math.max(l1, l2), lo = Math.min(l1, l2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+function hexToRgb(hex) {
+  return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+}
+
+function scaleRects(rects, k) {
+  return rects.map((r) => ({ x: r.x * k, y: r.y * k, w: r.w * k, h: r.h * k }));
+}
+
+function legibilityLevel(share) {
+  return share <= LEG_GOOD_MAX ? 'good' : share <= LEG_FAIR_MAX ? 'fair' : 'poor';
+}
+
+// Share (0 to 1) of the text area where the contrast with the photo is below the minimum.
+// data: RGBA of the small canvas (photo only, no text). Translucent text blends with the background.
+function lowContrastShare(data, w, h, rects, rgb, alpha, minRatio) {
+  let total = 0, low = 0;
+  for (const r of rects) {
+    const x0 = Math.max(0, Math.floor(r.x)), y0 = Math.max(0, Math.floor(r.y));
+    const x1 = Math.min(w, Math.ceil(r.x + r.w)), y1 = Math.min(h, Math.ceil(r.y + r.h));
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        const i = (y * w + x) * 4;
+        const br = data[i], bg = data[i + 1], bb = data[i + 2];
+        const tr = alpha * rgb[0] + (1 - alpha) * br;
+        const tg = alpha * rgb[1] + (1 - alpha) * bg;
+        const tb = alpha * rgb[2] + (1 - alpha) * bb;
+        total++;
+        if (contrastRatio(relLuminance(tr, tg, tb), relLuminance(br, bg, bb)) < minRatio) low++;
+      }
+    }
+  }
+  return total ? low / total : null;
+}
+
+// elems: [{ key, rects, rgb, alpha, min }]. Returns the worst element, or null if there is nothing to measure.
+function analyzeLegibility(data, w, h, elems) {
+  let worst = null;
+  for (const e of elems) {
+    const share = lowContrastShare(data, w, h, e.rects, e.rgb, e.alpha, e.min);
+    if (share === null) continue;
+    if (!worst || share > worst.share) worst = { key: e.key, share };
+  }
+  return worst ? { level: legibilityLevel(worst.share), key: worst.key, share: worst.share } : null;
+}
+
+// Short tip for when legibility is poor. alt: the best plain white/black other than the current colour,
+// as { name: 'white' | 'black', share } (or null).
+function legibilityTip(o) {
+  if (o.bgMode === 'overlay') {
+    if (o.overlayTextLum < 0.18) return 'Experimenta uma cor de texto clara';
+    return o.overlayOpacity < 90 ? 'Sobe a opacidade do overlay' : null;
+  }
+  if (o.bgMode === 'photo' && o.boxStyle === 'none' && o.alt && o.alt.share <= o.share - 0.15) {
+    return 'Experimenta ' + (o.alt.name === 'white' ? 'Branco' : 'Preto');
+  }
+  return 'Experimenta o Overlay';
+}
 /*PURE:APP:END*/
 
-/* ---------- Imagens: carregar, reduzir e libertar memória ---------- */
+/* ---------- Images: load, downscale and free memory ---------- */
 function releaseImage(img) {
-  // O Safari só liberta a memória de um canvas quando ele é posto a 0x0.
+  // Safari only frees a canvas's memory when it is set to 0x0.
   if (img && img.tagName === 'CANVAS') { img.width = 0; img.height = 0; }
 }
 
@@ -1354,7 +1486,7 @@ function syncPhotoStatus() {
   statusHint.textContent = has ? 'imagem carregada' : 'à espera de imagem';
 }
 
-/* ---------- Rascunho: guardar ---------- */
+/* ---------- Draft: saving ---------- */
 let restoringDraft = false;
 let draftTimer = null;
 
@@ -1373,14 +1505,14 @@ function serializeDraft() {
 function saveDraftNow() {
   if (restoringDraft) return;
   clearTimeout(draftTimer);
-  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeDraft())); } catch (e) { /* sem espaço ou bloqueado: o rascunho é opcional */ }
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeDraft())); } catch (e) { /* no space or blocked: the draft is optional */ }
 }
 function scheduleDraftSave() {
   if (restoringDraft) return;
   clearTimeout(draftTimer);
   draftTimer = setTimeout(saveDraftNow, 500);
 }
-// O iOS pode descartar o separador sem aviso: guardar assim que a app passa para segundo plano.
+// iOS can discard the tab without warning: save as soon as the app goes to the background.
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveDraftNow(); });
 window.addEventListener('pagehide', saveDraftNow);
 
@@ -1460,6 +1592,7 @@ function buildSwatchRow(container, palette, activeIdx, onPick) {
     el.className = 'swatch' + (i === activeIdx ? ' active' : '');
     el.style.background = c.hex;
     if (c.hex.toLowerCase() === '#ede5d8') el.style.boxShadow = 'inset 0 0 0 1px rgba(28,27,23,0.25)';
+    if (c.hex === '#000000') el.style.boxShadow = 'inset 0 0 0 1px rgba(237,229,216,0.25)';
     el.addEventListener('click', () => {
       [...container.children].forEach(s => s.classList.remove('active'));
       el.classList.add('active');
@@ -1474,6 +1607,7 @@ buildSwatchRow(document.getElementById('swatchesAccent'), PALETTE, 0, c => state
 buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, 4, c => state.bgColor = c);
 buildSwatchRow(document.getElementById('swatchesTextColor'), PALETTE, 3, c => state.textColor = c);
 buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, 4, c => state.overlayTextColor = c);
+buildSwatchRow(document.getElementById('swatchesNoBox'), NOBOX_CHOICES, 0, c => state.noBoxColor = c.name);
 
 overlayOpacitySlider.addEventListener('input', (e) => {
   state.overlayOpacity = parseInt(e.target.value, 10);
@@ -1547,16 +1681,7 @@ document.querySelectorAll('#styleSeg button').forEach(btn => {
   });
 });
 
-document.querySelectorAll('#noBoxColorSeg button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#noBoxColorSeg button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.noBoxColor = btn.dataset.color;
-    draw();
-  });
-});
-
-// Sem caixa não há cor de rótulo; só faz sentido escolher branco ou preto.
+// With no box there is no label colour: the text colour is picked instead.
 function updateBoxStyleControls() {
   const none = state.boxStyle === 'none';
   document.getElementById('accentField').classList.toggle('section-hidden', none);
@@ -1602,13 +1727,13 @@ uploadBtn.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
-  e.target.value = '';   // permite escolher o mesmo ficheiro outra vez
+  e.target.value = '';   // allows picking the same file again
   if (!file) return;
   if (file.type && !file.type.startsWith('image/')) {
     showToast('Esse ficheiro não é uma imagem.', true);
     return;
   }
-  const target = cp();   // a página para onde a foto foi pedida, mesmo que se mude de página entretanto
+  const target = cp();   // the page the photo was requested for, even if the user switches page in the meantime
   statusHint.textContent = 'a processar imagem…';
   let loaded = null;
   try {
@@ -1643,7 +1768,7 @@ document.getElementById('resetLink').addEventListener('click', () => {
   buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, 4, c => state.overlayTextColor = c);
   document.querySelectorAll('#posGrid button').forEach((b) => b.classList.toggle('active', b.dataset.pos === 'top-center'));
   document.querySelectorAll('#styleSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
-  document.querySelectorAll('#noBoxColorSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
+  buildSwatchRow(document.getElementById('swatchesNoBox'), NOBOX_CHOICES, 0, c => state.noBoxColor = c.name);
   updateBoxStyleControls();
   document.querySelectorAll('#formatSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
   document.querySelectorAll('#bgSeg button').forEach((b,i) => b.classList.toggle('active', i===0));
@@ -1652,10 +1777,10 @@ document.getElementById('resetLink').addEventListener('click', () => {
   solidOnlyControls.classList.add('section-hidden');
   uploadRow.classList.remove('section-hidden');
   pagesField.classList.add('section-hidden');
-  document.querySelectorAll('#tabBar button').forEach((b) => b.classList.toggle('active', b.dataset.tab === 'texto'));
-  document.getElementById('tabTexto').classList.remove('section-hidden');
-  document.getElementById('tabEstilo').classList.add('section-hidden');
-  document.getElementById('tabPosicao').classList.add('section-hidden');
+  document.querySelectorAll('#tabBar button').forEach((b) => b.classList.toggle('active', b.dataset.tab === 'text'));
+  document.getElementById('tabText').classList.remove('section-hidden');
+  document.getElementById('tabStyle').classList.add('section-hidden');
+  document.getElementById('tabPosition').classList.add('section-hidden');
   renderPageTabs();
   canvas.width = FORMATS.reel.w;
   canvas.height = FORMATS.reel.h;
@@ -1665,14 +1790,15 @@ document.getElementById('resetLink').addEventListener('click', () => {
   emptyState.classList.remove('section-hidden');
   exportBtn.disabled = true;
   statusHint.textContent = 'à espera de imagem';
+  hideLegibility();
   ctx.clearRect(0,0,canvas.width,canvas.height);
 });
 
 function wrapText(text, maxWidth, font) {
   ctx.font = font;
   const lines = [];
-  // respeita as quebras de linha que a pessoa escreveu (Enter),
-  // e só ajusta automaticamente dentro de cada uma delas se for demasiado comprida
+  // respects the line breaks the person typed (Enter),
+  // and only wraps automatically inside each of them if it is too long
   const paragraphs = text.split('\n');
   paragraphs.forEach((paragraph) => {
     if (paragraph === '') { lines.push(''); return; }
@@ -1734,8 +1860,9 @@ function makeGrainPattern(bgHex) {
   grainBgCache = bgHex;
 }
 
-function drawPhotoBackground(img, applyGradient) {
-  const W = canvas.width, H = canvas.height;
+function drawPhotoBackground(img, applyGradient, target, tW, tH) {
+  const c = target || ctx;
+  const W = tW || canvas.width, H = tH || canvas.height;
   const imgRatio = img.width / img.height;
   const canvasRatio = W / H;
   let sw, sh, sx, sy;
@@ -1750,15 +1877,15 @@ function drawPhotoBackground(img, applyGradient) {
     sx = 0;
     sy = (img.height - sh) / 2;
   }
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+  c.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   if (applyGradient) {
-    const grad = ctx.createLinearGradient(0,0,0,H);
+    const grad = c.createLinearGradient(0,0,0,H);
     grad.addColorStop(0,'rgba(22,21,19,0.12)');
     grad.addColorStop(0.35,'rgba(22,21,19,0)');
     grad.addColorStop(0.65,'rgba(22,21,19,0)');
     grad.addColorStop(1,'rgba(22,21,19,0.18)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,0,W,H);
+    c.fillStyle = grad;
+    c.fillRect(0,0,W,H);
   }
 }
 
@@ -1777,6 +1904,77 @@ function drawSolidBackground() {
     vg.addColorStop(1,'rgba(0,0,0,0.08)');
     ctx.fillStyle = vg;
     ctx.fillRect(0,0,W,H);
+  }
+}
+
+/* ---------- Legibility: meter ---------- */
+const LEG_NAMES = { label: 'do rótulo', context: 'do contexto', cta: 'do rodapé' };
+const LEG_WORDS = { good: 'boa', fair: 'razoável', poor: 'fraca' };
+
+function setLegText(el, txt) { if (el.textContent !== txt) el.textContent = txt; }
+
+function hideLegibility() {
+  clearTimeout(legTimer);
+  legBox.classList.add('section-hidden');
+}
+
+// Called at the end of every draw(). Waits a moment so it does not measure on every keystroke or slider step.
+function updateLegibility(elems) {
+  clearTimeout(legTimer);
+  const img = cp().img;
+  if (!img || state.bgMode === 'solid' || !elems.some((e) => e.rects.length)) {
+    legBox.classList.add('section-hidden');
+    return;
+  }
+  legTimer = setTimeout(() => runLegibility(img, elems), 250);
+}
+
+function runLegibility(img, elems) {
+  try {
+    if (cp().img !== img || !img.width || !img.height) { hideLegibility(); return; }
+    const w = Math.round(canvas.width * LEG_SCALE), h = Math.round(canvas.height * LEG_SCALE);
+    if (!legCanvas) legCanvas = document.createElement('canvas');
+    legCanvas.width = w; legCanvas.height = h;
+    const lctx = legCanvas.getContext('2d', { willReadFrequently: true });
+    drawPhotoBackground(img, state.bgMode === 'photo', lctx, w, h);
+    if (state.bgMode === 'overlay') {
+      lctx.fillStyle = '#000000';
+      lctx.globalAlpha = state.overlayOpacity / 100;
+      lctx.fillRect(0, 0, w, h);
+      lctx.globalAlpha = 1;
+    }
+    const data = lctx.getImageData(0, 0, w, h).data;
+    const scaled = elems.map((e) => ({ ...e, rects: scaleRects(e.rects, LEG_SCALE) }));
+    const res = analyzeLegibility(data, w, h, scaled);
+    if (!res) { hideLegibility(); return; }
+
+    let tip = null;
+    if (res.level === 'poor') {
+      // With no box, see whether plain white or plain black (other than the current colour) would read better.
+      let alt = null;
+      if (state.bgMode === 'photo' && state.boxStyle === 'none') {
+        for (const cand of [{ name: 'white', rgb: [255, 255, 255] }, { name: 'black', rgb: [0, 0, 0] }]) {
+          if (cand.name === state.noBoxColor) continue;
+          const r = analyzeLegibility(data, w, h, scaled.map((e) => ({ ...e, rgb: cand.rgb })));
+          if (r && (!alt || r.share < alt.share)) alt = { name: cand.name, share: r.share };
+        }
+      }
+      tip = legibilityTip({
+        bgMode: state.bgMode, boxStyle: state.boxStyle,
+        overlayOpacity: state.overlayOpacity,
+        overlayTextLum: relLuminance(...hexToRgb(state.overlayTextColor.hex)),
+        share: res.share, alt,
+      });
+    }
+    legRow.dataset.level = res.level;
+    setLegText(legText, res.level === 'good'
+      ? 'Legibilidade: boa'
+      : 'Legibilidade ' + LEG_NAMES[res.key] + ': ' + LEG_WORDS[res.level]);
+    if (tip) { setLegText(legTip, tip); legTip.classList.remove('section-hidden'); }
+    else { legTip.classList.add('section-hidden'); }
+    legBox.classList.remove('section-hidden');
+  } catch (e) {
+    hideLegibility();
   }
 }
 
@@ -1806,7 +2004,7 @@ function draw() {
 
   drawPageNumber();
 
-  if (!page.labelText && !page.contextText && !page.ctaText) return;
+  if (!page.labelText && !page.contextText && !page.ctaText) { updateLegibility([]); return; }
 
   const paddingX = Math.round(W * 0.06);
   const maxTextWidth = W - paddingX * 2 - Math.round(W*0.07);
@@ -1827,6 +2025,21 @@ function draw() {
   const gapBetween = contextLines.length ? labelFontSize * 0.36 : 0;
 
   const blockHeight = (labelLines.length * lineGapLabel) + gapBetween + (contextLines.length * lineGapContext);
+
+  // Legibility meter: only text sitting directly on the photo (or the overlay) counts.
+  const legOn = state.bgMode !== 'solid' && !!page.img;
+  const legElems = [];
+  const legAdd = (key, min, hex, alpha) => {
+    const e = { key, min, rgb: hexToRgb(hex), alpha, rects: [] };
+    if (legOn) legElems.push(e);
+    return e;
+  };
+  const legRect = (e, line, x, y, fs, align) => {
+    if (!legOn || !line) return;
+    const w = ctx.measureText(line).width;
+    const top = ctx.textBaseline === 'middle' ? y - fs * 0.5 : y - fs * 0.75;
+    e.rects.push({ x: align === 'left' ? x : align === 'right' ? x - w : x - w / 2, y: top, w, h: fs });
+  };
 
   if (state.bgMode === 'photo' && state.boxStyle !== 'none') {
     const boxPadV = Math.round(labelFontSize * 0.58);
@@ -1853,19 +2066,11 @@ function draw() {
       ctx.shadowBlur = W * 0.03;
       ctx.shadowOffsetY = W * 0.008;
 
-      if (state.boxStyle === 'solid') {
-        ctx.fillStyle = state.accent.hex;
-        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-      } else {
-        ctx.fillStyle = '#EDE5D8';
-        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-        ctx.shadowColor = 'transparent';
-        ctx.fillStyle = state.accent.hex;
-        ctx.fillRect(boxX, boxY, boxWidth, Math.max(6, W*0.006));
-      }
+      ctx.fillStyle = state.accent.hex;
+      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
       ctx.restore();
 
-      const textColor = state.boxStyle === 'solid' ? state.accent.text : '#1C1B17';
+      const textColor = state.accent.text;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -1881,8 +2086,8 @@ function draw() {
       if (contextLines.length) {
         const cursorYContext = blockTop + labelLines.length * lineGapLabel + gapBetween + lineGapContext / 2;
         ctx.font = contextFont;
-        ctx.globalAlpha = state.boxStyle === 'solid' ? 0.92 : 1;
-        ctx.fillStyle = state.boxStyle === 'solid' ? textColor : '#4A4136';
+        ctx.globalAlpha = 0.92;
+        ctx.fillStyle = textColor;
         let cy = cursorYContext;
         contextLines.forEach(line => {
           ctx.fillText(line, boxCenterX, cy);
@@ -1902,11 +2107,14 @@ function draw() {
     ctx.textAlign = textAlign;
     ctx.textBaseline = 'alphabetic';
 
+    const legLabel = legAdd('label', LEG_MIN_LABEL, directColor, 1);
+    const legContext = legAdd('context', LEG_MIN_SMALL, directColor, 0.82);
     let cursorY = startY + labelFontSize * 0.82;
     ctx.font = labelFont;
     ctx.fillStyle = directColor;
     labelLines.forEach(line => {
       ctx.fillText(line, textX, cursorY);
+      legRect(legLabel, line, textX, cursorY, labelFontSize, textAlign);
       cursorY += lineGapLabel;
     });
 
@@ -1917,6 +2125,7 @@ function draw() {
       ctx.fillStyle = directColor;
       contextLines.forEach(line => {
         ctx.fillText(line, textX, cursorY);
+        legRect(legContext, line, textX, cursorY, contextFontSize, textAlign);
         cursorY += lineGapContext;
       });
       ctx.globalAlpha = 1;
@@ -1928,7 +2137,7 @@ function draw() {
     ctx.font = ctaFont;
     const ctaLeft = state.ctaAlign === 'left';
     const pageNumVisible = state.format === 'carousel' && state.pages.length > 1;
-    // À esquerda, em carrossel, a linha para antes do número de página (canto inferior direito).
+    // Left-aligned, in a carousel, the line stops before the page number (bottom-right corner).
     const ctaMaxW = (ctaLeft && pageNumVisible) ? Math.round(W * 0.78) - paddingX : W - paddingX*2;
     const ctaX = ctaLeft ? paddingX : W/2;
     ctx.textAlign = ctaLeft ? 'left' : 'center';
@@ -1940,14 +2149,17 @@ function draw() {
     ctx.fillStyle = ctaColor;
     ctx.globalAlpha = 0.7;
     const ctaLines = wrapText(page.ctaText, ctaMaxW, ctaFont);
-    // A última linha fica sempre na mesma posição; as linhas extra sobem, para nunca saírem do canvas.
+    // The last line always stays in the same position; extra lines grow upwards, so they never leave the canvas.
     let cy = ctaY - (ctaLines.length - 1) * ctaFontSize * 1.4;
+    const legCta = legAdd('cta', LEG_MIN_SMALL, ctaColor, 0.7);
     ctaLines.forEach(line => {
       ctx.fillText(line, ctaX, cy);
+      legRect(legCta, line, ctaX, cy, ctaFontSize, ctaLeft ? 'left' : 'center');
       cy += ctaFontSize * 1.4;
     });
     ctx.restore();
   }
+  updateLegibility(legElems);
 }
 
 function drawPageNumber() {
@@ -1991,8 +2203,8 @@ function canvasToBlob() {
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
 }
 
-// A folha de partilha só é boa opção em ecrãs de toque. Em computador, alguns browsers
-// (Chrome, Edge, Brave) anunciam canShare mas abrem um diálogo do sistema que passa despercebido.
+// The share sheet is only a good option on touch screens. On desktop, some browsers
+// (Chrome, Edge, Brave) report canShare but open a system dialog that goes unnoticed.
 function preferNativeShare(files) {
   if (!navigator.canShare) return false;
   let touch = false;
@@ -2007,7 +2219,7 @@ function downloadBlob(blob, filename) {
   link.download = filename;
   link.href = url;
   link.style.display = 'none';
-  document.body.appendChild(link);   // alguns browsers só aceitam o clique com o link no documento
+  document.body.appendChild(link);   // some browsers only accept the click when the link is in the document
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
@@ -2029,7 +2241,7 @@ exportBtn.addEventListener('click', async () => {
       return;
     } catch (err) {
       if (err && err.name === 'AbortError') return;
-      // se a partilha falhar por outro motivo, cai para a transferência normal
+      // if sharing fails for any other reason, fall back to a normal download
     }
   }
   downloadBlob(blob, filename);
@@ -2079,7 +2291,7 @@ safeZoneBtn.addEventListener('click', () => {
 });
 updateSafeZoneVisibility();
 
-/* ---------- Painel "Criar o meu estilo" ---------- */
+/* ---------- Style panel ("Criar o meu estilo") ---------- */
 
 const brandPanel = document.getElementById('brandPanel');
 let pendingBrand = JSON.parse(JSON.stringify(currentBrand));
@@ -2093,8 +2305,8 @@ function fileToDataUrl(file) {
   });
 }
 
-/* Pré-visualização: usa a marca em vigor ('BrandHeading'/'BrandBody') ou, para uma fonte
-   acabada de escolher, uma família temporária que só existe enquanto o painel está aberto. */
+/* Preview: uses the brand in force ('BrandHeading'/'BrandBody') or, for a font
+   just picked, a temporary family that only exists while the panel is open. */
 let previewSeq = 0;
 const previewFaces = { heading: null, body: null };
 const previewFamilies = { heading: 'BrandHeading', body: 'BrandBody' };
@@ -2111,7 +2323,7 @@ async function setPreviewFont(role, url) {
     return;
   }
   const family = 'Preview' + role + (++previewSeq);
-  const face = await loadFontFace(family, url);   // rejeita se não for uma fonte válida
+  const face = await loadFontFace(family, url);   // rejects if it is not a valid font
   document.fonts.add(face);
   dropPreviewFace(role);
   previewFaces[role] = face;
@@ -2160,7 +2372,7 @@ function refreshBrandPanel() {
 
 async function openBrandPanelFn() {
   pendingBrand = JSON.parse(JSON.stringify(currentBrand));
-  // Se a fonte guardada falhou, o painel parte da predefinida em vez de a voltar a guardar.
+  // If the saved font failed, the panel starts from the default instead of saving it again.
   ['heading', 'body'].forEach((role) => {
     if (brandProblems.includes(role)) {
       pendingBrand[role + 'FontUrl'] = DEFAULT_BRAND[role + 'FontUrl'];
@@ -2174,7 +2386,7 @@ async function openBrandPanelFn() {
       setPreviewFont('heading', pendingBrand.headingFontUrl),
       setPreviewFont('body', pendingBrand.bodyFontUrl),
     ]);
-  } catch (err) { /* a pré-visualização cai para a fonte do sistema */ }
+  } catch (err) { /* the preview falls back to the system font */ }
   updateBrandPreview();
 }
 
@@ -2192,7 +2404,7 @@ document.getElementById('uploadBodyFontBtn').addEventListener('click', () => {
   document.getElementById('bodyFontInput').click();
 });
 
-// Valida antes de aceitar: tamanho e se o browser consegue mesmo carregar a fonte.
+// Validates before accepting: size, and whether the browser can actually load the font.
 async function onFontPicked(role, input) {
   const file = input.files[0];
   input.value = '';
@@ -2212,8 +2424,8 @@ async function onFontPicked(role, input) {
     showToast('Esse ficheiro não é uma fonte válida (usa TTF, OTF, WOFF ou WOFF2).', true);
   }
 }
-/* Google Fonts: pedido único, só quando a pessoa carrega em Obter. A fonte fica guardada
-   como data URI, tal como uma fonte carregada de um ficheiro, e a app volta a funcionar offline. */
+/* Google Fonts: a single request, only when the person taps Get ("Obter"). The font is saved
+   as a data URI, just like a font loaded from a file, and the app works offline again. */
 async function gfFetch(url) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 12000);
@@ -2225,7 +2437,7 @@ async function gfFetch(url) {
 async function fetchGoogleFont(role, name) {
   for (const axis of GF_ATTEMPTS[role]) {
     const res = await gfFetch(googleFontCssUrl(name, axis));
-    if (!res.ok) continue;                                  // 400: não existe com este eixo
+    if (!res.ok) continue;                                  // 400: does not exist with this axis
     const fontUrl = pickLatinFontUrl(await res.text());
     if (!fontUrl) continue;
     const fr = await gfFetch(fontUrl);
@@ -2248,7 +2460,7 @@ async function onGoogleFont(role) {
   btn.disabled = true; btn.textContent = 'A obter…';
   try {
     const url = await fetchGoogleFont(role, name);
-    await setPreviewFont(role, url);                        // rejeita se não for uma fonte válida
+    await setPreviewFont(role, url);                        // rejects if it is not a valid font
     pendingBrand[role + 'FontUrl'] = url;
     pendingBrand[role + 'FontName'] = name + ' (Google Fonts)';
     document.getElementById(role + 'FontName').textContent = pendingBrand[role + 'FontName'];
@@ -2266,7 +2478,7 @@ async function onGoogleFont(role) {
   }
 }
 const GF_SUGGEST = ["Playfair Display", "Lora", "Merriweather", "DM Serif Display", "Cormorant Garamond", "EB Garamond", "Libre Baskerville", "Fraunces", "Crimson Pro", "Spectral", "Abril Fatface", "Bitter", "Bebas Neue", "Oswald", "Anton", "Archivo Black", "Montserrat", "Poppins", "Inter", "Roboto", "Open Sans", "Lato", "Nunito", "Work Sans", "DM Sans", "Manrope", "Raleway", "Space Grotesk", "Source Sans 3", "IBM Plex Sans", "IBM Plex Serif", "Barlow", "Rubik", "Karla", "Josefin Sans", "Syne", "Outfit", "Sora", "Quicksand", "Caveat"];
-// Lista de sugestões em linha (acompanha o scroll da página, ao contrário do datalist nativo).
+// Inline suggestion list (follows the page scroll, unlike the native datalist).
 function renderGfSuggest(cap) {
   const box = document.getElementById('gfSuggest' + cap);
   const q = document.getElementById('gfInput' + cap).value.trim().toLowerCase();
@@ -2326,7 +2538,7 @@ document.getElementById('saveBrandBtn').addEventListener('click', () => {
       : 'Este browser não deixou guardar o estilo (armazenamento bloqueado?).', true);
     return;
   }
-  saveDraftNow();   // o texto sobrevive ao recarregamento; as fotos não
+  saveDraftNow();   // the text survives the reload; photos do not
   location.reload();
 });
 
@@ -2336,7 +2548,7 @@ document.getElementById('resetBrandBtn').addEventListener('click', () => {
   location.reload();
 });
 
-/* Exportar / importar o estilo: permite passá-lo a um amigo ou levá-lo do Safari para a app instalada. */
+/* Export / import the style: lets you hand it to a friend or move it from Safari to the installed app. */
 document.getElementById('exportBrandBtn').addEventListener('click', async () => {
   const payload = JSON.stringify({ type: 'editor-capas-estilo', version: 1, brand: sanitizeBrand(pendingBrand) });
   const file = new File([payload], 'o-meu-estilo.json', { type: 'text/plain' });
@@ -2382,9 +2594,9 @@ document.getElementById('tabBar').addEventListener('click', (e) => {
   const tab = btn.dataset.tab;
   document.querySelectorAll('#tabBar button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('tabTexto').classList.toggle('section-hidden', tab !== 'texto');
-  document.getElementById('tabEstilo').classList.toggle('section-hidden', tab !== 'estilo');
-  document.getElementById('tabPosicao').classList.toggle('section-hidden', tab !== 'posicao');
+  document.getElementById('tabText').classList.toggle('section-hidden', tab !== 'text');
+  document.getElementById('tabStyle').classList.toggle('section-hidden', tab !== 'style');
+  document.getElementById('tabPosition').classList.toggle('section-hidden', tab !== 'position');
 });
 
 function restoreDraft() {
@@ -2412,13 +2624,13 @@ function restoreDraft() {
     buildSwatchRow(document.getElementById('swatchesBg'), PALETTE, PALETTE.indexOf(state.bgColor), (p) => state.bgColor = p);
     buildSwatchRow(document.getElementById('swatchesTextColor'), PALETTE, PALETTE.indexOf(state.textColor), (p) => state.textColor = p);
     buildSwatchRow(document.getElementById('swatchesOverlayText'), PALETTE, PALETTE.indexOf(state.overlayTextColor), (p) => state.overlayTextColor = p);
+    buildSwatchRow(document.getElementById('swatchesNoBox'), NOBOX_CHOICES, NOBOX_CHOICES.findIndex((n) => n.name === state.noBoxColor), (n) => state.noBoxColor = n.name);
 
-    // Reutiliza os próprios botões, para a interface ficar coerente com o estado.
+    // Reuses the buttons themselves, so the interface stays consistent with the state.
     const press = (sel) => { const b = document.querySelector(sel); if (b) b.click(); };
     press('#formatSeg button[data-format="' + d.format + '"]');
     press('#bgSeg button[data-bg="' + d.bgMode + '"]');
     press('#styleSeg button[data-style="' + d.boxStyle + '"]');
-    press('#noBoxColorSeg button[data-color="' + d.noBoxColor + '"]');
     updateBoxStyleControls();
     press('#posGrid button[data-pos="' + d.position + '"]');
     press('#ctaAlignSeg button[data-cta="' + d.ctaAlign + '"]');

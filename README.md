@@ -7,14 +7,16 @@ Corre inteiramente no browser: **sem backend, sem conta, sem upload**. As fotos 
 ## Como usar
 
 1. Escolhe **Formato** (Reel 9:16, Carrossel 4:5, Quadrado 1:1) e **Fundo**:
-   - **Foto**: a tua imagem com uma caixa colorida à volta do rótulo (Sólida ou Papel), ou **Sem caixa**, com o texto só a branco ou só a preto para garantir o contraste
+   - **Foto**: a tua imagem com uma caixa colorida à volta do rótulo, ou **Sem caixa**, com o texto na cor que escolheres (Branco, Preto ou uma das cores da marca)
    - **Overlay**: a tua imagem com uma camada preta (opacidade ajustável) e o texto diretamente por cima
    - **Sólido**: uma cor da marca com uma grelha subtil de pontos
 2. Carrega a foto. No **Carrossel**, usa **Páginas** para juntar slides (cada um com a sua foto e o seu texto) e "Exportar todas as páginas".
 3. Separador **Texto**: Rótulo, Contexto e Rodapé. Aceitam Enter para quebras de linha à tua escolha.
-4. Separador **Estilo**: cor e estilo da caixa, ou Branco/Preto se escolheres "Sem caixa" (e, no Overlay, a opacidade).
+4. Separador **Estilo**: cor e estilo da caixa (Sólido ou Sem caixa), ou a cor do texto se escolheres "Sem caixa" (e, no Overlay, a opacidade).
 5. Separador **Posição**: grelha 3×3, ajuste fino vertical, tamanho do texto (Pequeno / Médio / Grande) e alinhamento do rodapé (Esquerda / Centro). Em carrossel, o rodapé à esquerda para antes do número de página.
 6. **Exportar imagem**: no iPhone abre a folha de partilha; escolhe "Guardar Imagem" para ir para a galeria.
+
+Por baixo da imagem, quando há foto ou overlay e texto por cima, a app indica a **legibilidade** do texto sobre a foto (boa, razoável ou fraca) e, se for fraca, sugere o que experimentar. É uma estimativa feita no próprio telemóvel, só para dar uma ideia: nunca bloqueia a exportação, e uma foto com muito detalhe pode ler-se pior do que o medidor indica. Com caixa, só o rodapé é medido, porque o resto fica sobre a caixa. No fundo Sólido não aparece.
 
 No Reel há ainda o botão **Zona segura** (desligado por omissão), que mostra onde a interface do Instagram tapa o conteúdo. É só uma ajuda no ecrã e nunca aparece na imagem exportada.
 
