@@ -1,6 +1,6 @@
 // Bump this number whenever you change any of the cached files,
 // to force the phone to fetch the new version instead of using the old cached one.
-const CACHE_VERSION = 'editor-capas-v19';
+const CACHE_VERSION = 'editor-capas-v20';
 
 const ASSETS = [
   './',

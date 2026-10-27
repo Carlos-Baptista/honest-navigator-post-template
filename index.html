@@ -1324,6 +1324,15 @@ function clampBlockY(y, blockH, H, margin) {
   return Math.max(margin, Math.min(H - margin - blockH, y));
 }
 
+// Top edge of a text block (before the fine adjustment). 'top' and 'bottom' keep the same margin
+// (14% of the canvas height) from their own edge, and 'mid' centres the block, whatever its height.
+function blockTop(v, blockH, H) {
+  const margin = H * 0.14;
+  if (v === 'top') return margin;
+  if (v === 'mid') return (H - blockH) / 2;
+  return H - margin - blockH;
+}
+
 /* ---------- Google Fonts (opt-in, only when creating the style) ---------- */
 const GF_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9 ]{1,58}$/;
 // Attempts in order: variable weight axis (covers 600 and 400), then a single static weight.
@@ -1823,13 +1832,6 @@ function positionParts() {
   return { v, h };
 }
 
-function baseY() {
-  const height = canvas.height;
-  const { v } = positionParts();
-  if (v === 'top') return height * 0.14;
-  if (v === 'mid') return height * 0.42;
-  return height * 0.70;
-}
 
 let grainBgCache = null;
 
@@ -2057,7 +2059,7 @@ function draw() {
     const boxX = hAlign === 'left' ? paddingX
                 : hAlign === 'right' ? W - paddingX - boxWidth
                 : (W - boxWidth) / 2;
-    const boxY = clampBlockY(baseY() + state.offsetY, boxHeight, H, paddingX);
+    const boxY = clampBlockY(blockTop(positionParts().v, boxHeight, H) + state.offsetY, boxHeight, H, paddingX);
     const boxCenterX = boxX + boxWidth / 2;
 
     if (page.labelText || page.contextText) {
@@ -2097,7 +2099,7 @@ function draw() {
       }
     }
   } else {
-    const startY = clampBlockY(baseY() + state.offsetY, blockHeight, H, paddingX);
+    const startY = clampBlockY(blockTop(positionParts().v, blockHeight, H) + state.offsetY, blockHeight, H, paddingX);
     const { h: hAlign } = positionParts();
     const directColor = state.bgMode === 'overlay' ? state.overlayTextColor.hex
                       : state.bgMode === 'photo' ? noBoxHex()

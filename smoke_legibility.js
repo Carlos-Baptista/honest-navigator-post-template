@@ -22,7 +22,8 @@ function boot(preDraft) {
             if (p === 'canvas') return canvas;
             if (p === 'measureText') return (s) => ({ width: String(s).length * 14 });
             if (p === 'drawImage') return () => { t.dark = 0; };            // new photo: clears the overlay
-            if (p === 'fillRect') return (x, y, w, h) => { if (t.fillStyle === '#000000' && w >= canvas.width) t.dark = 1 - (1 - t.dark) * (1 - t.globalAlpha); };
+            if (p === 'fillText') return (str, x, y) => { (win.__texts || (win.__texts = [])).push({ s: str, x, y }); };
+            if (p === 'fillRect') return (x, y, w, h) => { (win.__rects || (win.__rects = [])).push({ fill: t.fillStyle, x, y, w, h }); if (t.fillStyle === '#000000' && w >= canvas.width) t.dark = 1 - (1 - t.dark) * (1 - t.globalAlpha); };
             if (p === 'getImageData') return (x, y, w, h) => {
               if (canvas.__small) stats.legReads++;
               const d = new Uint8ClampedArray(w * h * 4);
@@ -217,6 +218,45 @@ function ok(cond, msg) { if (cond) passes++; else { fails++; console.log('FAILED
   ok(win.eval('state.noBoxColor') === 'accent' && noBoxSw()[2].classList.contains('active'), 'L: the accent swatch is active');
   const saved = JSON.parse(win.localStorage.getItem('editorCapasDraft') || 'null');
   ok(saved && saved.noBoxColor === 'accent' && saved.boxStyle === 'none', 'L: the draft stores the role name and the box style: ' + JSON.stringify(saved && [saved.noBoxColor, saved.boxStyle]));
+
+  // M) vertical position: same margin at the top and at the bottom, centred in the middle, in every format
+  win.__bgFn = () => [0, 0, 0];
+  click('#styleSeg button[data-style="solid"]');
+  type('labelText', 'Quem nunca desliga'); type('contextText', 'não é cansaço físico'); type('ctaText', '');
+  const accentHex = win.eval('state.accent.hex').toLowerCase();
+  for (const fmt of ['reel', 'carousel', 'square']) {
+    click('#formatSeg button[data-format="' + fmt + '"]');
+    const H = win.eval('canvas.height'), gaps = {};
+    for (const pos of ['top-center', 'mid-center', 'bottom-center']) {
+      click('#posGrid button[data-pos="' + pos + '"]');
+      win.__rects = []; win.eval('draw()');
+      const box = win.__rects.filter((r) => String(r.fill).toLowerCase() === accentHex).pop();
+      gaps[pos] = { top: box.y, bottom: H - (box.y + box.h) };
+    }
+    ok(Math.abs(gaps['top-center'].top - H * 0.14) < 0.5, 'M: ' + fmt + ': top-center is 14% of the height from the top (' + gaps['top-center'].top + ')');
+    ok(Math.abs(gaps['bottom-center'].bottom - gaps['top-center'].top) < 0.5, 'M: ' + fmt + ': bottom-center is as far from the bottom as top-center is from the top (' + gaps['bottom-center'].bottom + ' vs ' + gaps['top-center'].top + ')');
+    ok(Math.abs(gaps['mid-center'].top - gaps['mid-center'].bottom) < 0.5, 'M: ' + fmt + ': mid-center is centred (' + gaps['mid-center'].top + ' / ' + gaps['mid-center'].bottom + ')');
+  }
+  // M2) same thing with no box (text drawn straight on the photo): a two-line label, so the block height is 2 line gaps
+  click('#styleSeg button[data-style="none"]');
+  type('labelText', 'Quem\nnunca'); type('contextText', ''); type('ctaText', '');
+  for (const fmt of ['reel', 'carousel', 'square']) {
+    click('#formatSeg button[data-format="' + fmt + '"]');
+    const H = win.eval('canvas.height'), y1 = {};
+    let bh = 0;
+    for (const pos of ['top-center', 'mid-center', 'bottom-center']) {
+      click('#posGrid button[data-pos="' + pos + '"]');
+      win.__texts = []; win.eval('draw()');
+      const a = win.__texts.find((t) => t.s === 'Quem'), b = win.__texts.find((t) => t.s === 'nunca');
+      y1[pos] = a.y; bh = 2 * (b.y - a.y);
+    }
+    ok(Math.abs((y1['bottom-center'] - y1['top-center']) - (0.72 * H - bh)) < 0.5, 'M2: ' + fmt + ': no box, bottom-center keeps the same margin as top-center');
+    ok(Math.abs((y1['mid-center'] - y1['top-center']) - ((H - bh) / 2 - 0.14 * H)) < 0.5, 'M2: ' + fmt + ': no box, mid-center is centred');
+  }
+
+  // put the state back as the later checks expect it
+  click('#formatSeg button[data-format="reel"]'); click('#posGrid button[data-pos="top-center"]');
+  click('#styleSeg button[data-style="none"]'); type('ctaText', 'rodapé');
 
   // J) "recomeçar" (reset) hides the meter and puts the Text tab back
   click('#tabBar button[data-tab="position"]');

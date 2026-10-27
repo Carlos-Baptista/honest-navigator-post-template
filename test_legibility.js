@@ -8,7 +8,7 @@ const api = new Function(`
   const MAX_PAGES = 10;
 ` + block + `
   return { relLuminance, contrastRatio, hexToRgb, scaleRects, legibilityLevel, lowContrastShare,
-           analyzeLegibility, legibilityTip, sanitizeDraft, LEG_SCALE };`)();
+           analyzeLegibility, legibilityTip, sanitizeDraft, blockTop, clampBlockY, LEG_SCALE };`)();
 
 let fails = 0, passes = 0;
 function ok(cond, msg) { if (cond) passes++; else { fails++; console.log('FAILED:', msg); } }
@@ -79,6 +79,19 @@ ok(api.legibilityTip({ ...base, boxStyle: 'solid' }) === 'Experimenta o Overlay'
 ok(api.legibilityTip({ ...base, bgMode: 'overlay' }) === 'Sobe a opacidade do overlay', 'overlay with light text -> raise the opacity');
 ok(api.legibilityTip({ ...base, bgMode: 'overlay', overlayOpacity: 90 }) === null, 'overlay already at the maximum -> no tip');
 ok(api.legibilityTip({ ...base, bgMode: 'overlay', overlayTextLum: 0.02 }) === 'Experimenta uma cor de texto clara', 'overlay with dark text -> light text');
+
+// --- vertical position of a text block: same margin at the top and at the bottom, centred in the middle
+for (const H of [1920, 1350, 1080]) {
+  for (const bh of [150, 248, 418, 700]) {
+    const top = api.blockTop('top', bh, H), bot = api.blockTop('bottom', bh, H), mid = api.blockTop('mid', bh, H);
+    near(top, H * 0.14, 1e-9, `top margin is 14% of H (H=${H}, block ${bh})`);
+    near(H - (bot + bh), top, 1e-9, `bottom margin equals the top margin (H=${H}, block ${bh})`);
+    near(mid, H - (mid + bh), 1e-9, `middle is centred (H=${H}, block ${bh})`);
+  }
+}
+// the clamp still wins when the block does not fit: it keeps at least `margin` from both edges
+near(api.clampBlockY(api.blockTop('bottom', 418, 1080) + 300, 418, 1080, 65), 1080 - 65 - 418, 1e-9, 'fine adjustment cannot push the block out of the canvas');
+near(api.clampBlockY(api.blockTop('top', 418, 1080) - 300, 418, 1080, 65), 65, 1e-9, 'fine adjustment cannot push the block above the top margin');
 
 // --- draft: box style and the text colour with no box
 const NAMES0 = ['accent', 'secondary', 'light', 'base', 'text'];
