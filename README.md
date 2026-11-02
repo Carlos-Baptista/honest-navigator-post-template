@@ -53,8 +53,9 @@ Ao carregar, a foto é reduzida logo para o tamanho de que o Reel precisa (no m�
 ## Atualizar
 
 1. No repositório, **Add file → Upload files** e arrasta os ficheiros novos (substituem os que têm o mesmo nome)
-2. Se houver um `sw.js` novo (o número da versão sobe, por exemplo `v11` → `v12`), sobe-o **ao mesmo tempo** que o `index.html`: é isso que força o telemóvel a largar a cache antiga
-3. Fecha a app instalada por completo e reabre. Se persistir na versão antiga, limpa os dados do site em Definições → Safari → Avançado → Dados de Sites
+2. Com rede, a app abre sempre a versão mais recente (já não fica presa numa cache antiga). Se a app já estiver aberta, ao voltares a ela aparece o aviso **Nova versão disponível**: **Atualizar** recarrega (o texto fica guardado; as fotos carregadas perdem-se, e a app avisa antes) e **Depois** adia
+3. Para saberes em que versão estás, vê **Versão NN** no fim da página. Em cada alteração, sobe o número da meta `app-version` no `index.html`: é isso que faz o aviso aparecer. O `sw.js` só precisa de ser enviado quando muda
+4. Na primeira atualização para esta versão, abre a app duas vezes: a primeira ainda usa a cache antiga, a segunda já traz a versão nova. Se persistir na versão antiga, limpa os dados do site em Definições → Safari → Avançado → Dados de Sites
 
 ## Estrutura
 

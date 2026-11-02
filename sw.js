@@ -1,6 +1,8 @@
-// Bump this number whenever you change any of the cached files,
-// to force the phone to fetch the new version instead of using the old cached one.
-const CACHE_VERSION = 'editor-capas-v20';
+// Network first: online, the app always loads the latest files; offline (or on a very slow
+// connection) it falls back to the cached copy. There is no version to bump here: the open page
+// checks for a newer version by itself (see the "app-version" meta tag in index.html).
+const CACHE_NAME = 'editor-capas';
+const NETWORK_TIMEOUT_MS = 4000;   // after this, serve the cached copy instead of waiting
 
 const ASSETS = [
   './',
@@ -17,36 +19,47 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  // 'reload' skips the browser's HTTP cache, so the first cached copy is never a stale one
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS.map((url) => new Request(url, { cache: 'reload' }))))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  // also removes the old versioned caches ('editor-capas-v20' and earlier)
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Requests to other origins (Google Fonts) go straight to the network, bypassing the service worker cache.
-  if (new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
-  );
+  const req = event.request;
+  // Only same-origin GET requests; other origins (Google Fonts) go straight to the network.
+  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  event.respondWith(networkFirst(req));
 });
+
+async function networkFirst(req) {
+  const cache = await caches.open(CACHE_NAME);
+  // 'no-cache': always check with the server, because GitHub Pages lets browsers reuse a file for 10 minutes.
+  // If that option is refused for some reason, a plain fetch is the fallback.
+  const network = fetch(req, { cache: 'no-cache' })
+    .catch(() => fetch(req))
+    .then((res) => {
+      if (res.ok) cache.put(req, res.clone()).catch(() => {});   // e.g. partial (206) responses cannot be cached
+      return res;
+    });
+  network.catch(() => {});   // avoids an unhandled rejection when the timeout wins the race
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), NETWORK_TIMEOUT_MS));
+  try {
+    const res = await Promise.race([network, timeout]);
+    if (res.status < 500) return res;
+  } catch (err) { /* offline or too slow: use the cached copy below */ }
+  const cached = (await cache.match(req, { ignoreSearch: true }))
+    || (req.mode === 'navigate' ? await cache.match('./index.html') : undefined);
+  return cached || network;   // nothing cached: wait for the network
+}

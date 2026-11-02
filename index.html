@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Editor de Capas">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1C1B17">
+<meta name="app-version" content="v21">
 <link rel="apple-touch-icon" sizes="120x120" href="icon-120.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
 <link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
@@ -685,6 +686,51 @@ html,body{
 .export-btn:active{ box-shadow:0 0 18px rgba(200,96,26,0.3); }
 .export-btn:disabled{ background:rgba(200,96,26,0.25); border-color:transparent; color:var(--color-dim); }
 
+/* Update banner: fixed at the top (the toast lives at the bottom), so both can show at once. */
+.update-banner{
+  position:fixed;
+  left:20px;
+  right:20px;
+  top:calc(env(safe-area-inset-top, 0px) + 12px);
+  z-index:101;
+  max-width:480px;
+  margin:0 auto;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--color-bg-surface);
+  box-shadow:inset 0 0 0 1px var(--color-border-mid);
+  color:var(--color-text-strong);
+  font-size:11px;
+  letter-spacing:var(--tracking-wide);
+  text-transform:uppercase;
+  line-height:1.5;
+}
+.update-banner #updateText{ flex:1; }
+.update-actions{ display:flex; gap:8px; flex:none; }
+.update-actions button{
+  font:inherit;
+  letter-spacing:inherit;
+  text-transform:inherit;
+  padding:8px 12px;
+  border:0;
+  border-radius:0;
+  cursor:pointer;
+  background:transparent;
+  color:var(--color-text-base);
+  box-shadow:inset 0 0 0 1px var(--color-border-mid);
+}
+.update-actions #updateBtn{ background:var(--color-orange); color:var(--color-text-strong); box-shadow:none; }
+.app-version{
+  text-align:center;
+  margin-top:24px;
+  font-size:10px;
+  letter-spacing:var(--tracking-wide);
+  text-transform:uppercase;
+  color:var(--color-text-base);
+}
+
 .reset-link{
   display:block;
   text-align:center;
@@ -1062,9 +1108,18 @@ html,body{
   <button class="export-btn" id="exportBtn" disabled>Exportar imagem</button>
   <button class="export-btn section-hidden" id="exportAllBtn" style="background:transparent;color:var(--color-orange);border-color:rgba(200,96,26,0.5);margin-top:12px;">Exportar todas as páginas</button>
   <a class="reset-link" id="resetLink">recomeçar</a>
+  <p class="app-version" id="appVersion"></p>
 </div>
 
 <div class="toast section-hidden" id="toast" role="status" aria-live="polite"></div>
+
+<div class="update-banner section-hidden" id="updateBanner" role="status" aria-live="polite">
+  <span id="updateText">Nova versão disponível.</span>
+  <span class="update-actions">
+    <button type="button" id="updateLater">Depois</button>
+    <button type="button" id="updateBtn">Atualizar</button>
+  </span>
+</div>
 
 <script>
 const canvas = document.getElementById('canvas');
@@ -1081,6 +1136,17 @@ const legText = document.getElementById('legText');
 const legTip = document.getElementById('legTip');
 let legTimer = null;
 let legCanvas = null;
+const appVersionEl = document.getElementById('appVersion');
+const updateBanner = document.getElementById('updateBanner');
+const updateText = document.getElementById('updateText');
+const updateBtn = document.getElementById('updateBtn');
+const updateLater = document.getElementById('updateLater');
+const APP_VERSION = (document.querySelector('meta[name="app-version"]') || {}).content || '';
+const UPDATE_CHECK_MIN_GAP_MS = 60 * 1000;   // at most one check per minute
+let lastUpdateCheck = 0;
+let dismissedVersion = '';   // a newer version the person chose to ignore ("Depois")
+let latestVersion = '';      // the newer version the banner is about
+let updateArmed = false;     // true after the first tap when photos would be lost
 const canvasFrame = document.getElementById('canvasFrame');
 const safeZoneOverlay = document.getElementById('safeZoneOverlay');
 const safeZoneBtn = document.getElementById('safeZoneBtn');
@@ -2661,6 +2727,54 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   });
 }
+
+/* ---------- Updates ---------- */
+// The service worker always serves the latest files when online. This only covers an app that is
+// already open (an installed app is not reloaded when you switch back to it): it looks at the
+// "app-version" meta tag of the newest index.html and offers a reload if it changed.
+appVersionEl.textContent = APP_VERSION ? 'Versão ' + APP_VERSION.replace(/^v/, '') : '';
+
+function reloadApp() { location.reload(); }
+
+function showUpdateBanner() {
+  updateArmed = false;
+  updateText.textContent = 'Nova versão disponível.';
+  updateBtn.textContent = 'Atualizar';
+  updateBanner.classList.remove('section-hidden');
+}
+
+async function checkForUpdate() {
+  if (Date.now() - lastUpdateCheck < UPDATE_CHECK_MIN_GAP_MS) return;
+  lastUpdateCheck = Date.now();
+  try {
+    const res = await fetch('index.html', { cache: 'no-cache' });
+    if (!res.ok) return;
+    const m = /<meta name="app-version" content="([^"]+)"/.exec(await res.text());
+    if (!m || m[1] === APP_VERSION || m[1] === dismissedVersion) return;
+    if (updateBanner.classList.contains('section-hidden')) { latestVersion = m[1]; showUpdateBanner(); }
+  } catch (e) { /* offline: try again next time */ }
+}
+
+updateBtn.addEventListener('click', () => {
+  // Reloading drops the photos (only text and settings are saved), so ask once before doing it.
+  if (state.pages.some((p) => p.img) && !updateArmed) {
+    updateArmed = true;
+    updateText.textContent = 'Atualizar apaga as fotos carregadas. Continuar?';
+    updateBtn.textContent = 'Atualizar mesmo assim';
+    return;
+  }
+  saveDraftNow();
+  reloadApp();
+});
+updateLater.addEventListener('click', () => {
+  dismissedVersion = latestVersion;
+  updateBanner.classList.add('section-hidden');
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkForUpdate();
+});
+setTimeout(checkForUpdate, 3000);
 </script>
 </body>
 </html>
